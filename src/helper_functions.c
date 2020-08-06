@@ -17,29 +17,24 @@ typedef _Dcomplex cplx;
 #include "stats.h"
 
 // compare function for qsort, for array of doubles
-static int compare (const void * a, const void * b)
-{
-    if (*(double*)a < *(double*)b) {
+static int compare (const void * a, const void * b) {
+    if (*(double*)a < *(double*)b)
         return -1;
-    } else if (*(double*)a > *(double*)b) {
+    else if (*(double*)a > *(double*)b)
         return 1;
-    } else {
+    else
         return 0;
-    }
 }
 
 // wrapper for qsort for array of doubles. Sorts in-place
-void sort(double y[], int size)
-{
+void sort(double y[], int size) {
     qsort(y, size, sizeof(*y), compare);
 }
 
 // store absolute values of an array
-void abs_(double y[], int size, double abs_y[])
-{
+void abs_(double y[], int size, double abs_y[]) {
     int i;
-    for (i = 0; i < size; i++)
-    {
+    for (i = 0; i < size; i++) {
         if(y[i] < 0)
             abs_y[i] = -y[i];
         else
@@ -48,8 +43,7 @@ void abs_(double y[], int size, double abs_y[])
 }
 
 // linearly spaced vector
-void linspace(double start, double end, int num_groups, double out[])
-{
+void linspace(double start, double end, int num_groups, double out[]) {
     double step_size = (end - start) / (num_groups - 1);
     for (int i = 0; i < num_groups; i++) {
         out[i] = start;
@@ -58,8 +52,7 @@ void linspace(double start, double end, int num_groups, double out[])
     return;
 }
 
-double quantile(const double y[], const int size, const double quant)
-{   
+double quantile(const double y[], const int size, const double quant) {   
     double quant_idx, q, value;
     int idx_left, idx_right;
     double * tmp = malloc(size * sizeof(*y));
@@ -91,8 +84,7 @@ double quantile(const double y[], const int size, const double quant)
     return value;
 }
 
-void binarize(const double a[], const int size, int b[], const char how[])
-{   
+void binarize(const double a[], const int size, int b[], const char how[]) {   
     double m = 0.0;
     if (strcmp(how, "mean") == 0) {
         m = mean(a, size);
@@ -105,8 +97,7 @@ void binarize(const double a[], const int size, int b[], const char how[])
     return;
 }
 
-double f_entropy(const double a[], const int size)
-{
+double f_entropy(const double a[], const int size) {
     double f = 0.0;
     for (int i = 0; i < size; i++) {
         if (a[i] > 0) {
@@ -116,8 +107,7 @@ double f_entropy(const double a[], const int size)
     return -1 * f;
 }
 
-void subset(const int a[], int b[], const int start, const int end)
-{
+void subset(const int a[], int b[], const int start, const int end) {
     int j = 0;
     for (int i = start; i < end; i++) {
         b[j++] = a[i];

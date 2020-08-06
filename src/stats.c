@@ -4,78 +4,61 @@
 #include <stdio.h>
 #include "helper_functions.h"
 
-double min_(const double a[], const int size)
-{
+double min_(const double a[], const int size) {
     double m = a[0];
-    for (int i = 1; i < size; i++) {
-        if (a[i] < m) {
+    for (int i = 1; i < size; i++)
+        if (a[i] < m)
             m = a[i];
-        }
-    }
     return m;
 }
 
-double max_(const double a[], const int size)
-{
+double max_(const double a[], const int size) {
     double m = a[0];
-    for (int i = 1; i < size; i++) {
-        if (a[i] > m) {
+    for (int i = 1; i < size; i++)
+        if (a[i] > m)
             m = a[i];
-        }
-    }
     return m;
 }
 
-double mean(const double a[], const int size)
-{
+double mean(const double a[], const int size) {
     double m = 0.0;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
         m += a[i];
-    }
     m /= size;
     return m;
 }
 
-double sum(const double a[], const int size)
-{
+double sum(const double a[], const int size) {
     double m = 0.0;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
         m += a[i];
-    }
     return m;
 }
 
-void cumsum(const double a[], const int size, double b[])
-{
+void cumsum(const double a[], const int size, double b[]) {
     b[0] = a[0];
     for (int i = 1; i < size; i++) {
         b[i] = a[i] + b[i-1];
         //printf("b[%i]%1.3f = a[%i]%1.3f + b[%i-1]%1.3f\n", i, b[i], i, a[i], i, a[i-1]);
     }
-    
 }
 
-void icumsum(const int a[], const int size, int b[])
-{
+void icumsum(const int a[], const int size, int b[]) {
     b[0] = a[0];
     for (int i = 1; i < size; i++) {
         b[i] = a[i] + b[i-1];
         //printf("b[%i]%1.3f = a[%i]%1.3f + b[%i-1]%1.3f\n", i, b[i], i, a[i], i, a[i-1]);
-    }
-    
+    }   
 }
 
-double isum(const int a[], const int size)
-{
+double isum(const int a[], const int size) {
     double m = 0.0;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
         m += a[i];
-    }
     return m;
 }
 
-double median(const double a[], const int size)
-{
+double median(const double a[], const int size) {
     double m;
     double * b = malloc(size * sizeof *b);
     memcpy(b, a, size * sizeof *b);
@@ -91,137 +74,103 @@ double median(const double a[], const int size)
     return m;
 }
 
-double stddev(const double a[], const int size)
-{
+double stddev(const double a[], const int size) {
     double m = mean(a, size);
     double sd = 0.0;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
         sd += pow(a[i] - m, 2);
-    }
     sd = sqrt(sd / (size - 1));
     return sd;
 }
 
-double var(const double a[], const int size)
-{
+double var(const double a[], const int size) {
     double m = mean(a, size);
     double vr = 0.0;
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
         vr += pow(a[i] - m, 2);
-    }
     vr = vr / (size - 1);
     return vr;
 }
 
-double cov(const double x[], const double y[], const int size){
-    
+double cov(const double x[], const double y[], const int size) {
     double covariance = 0;
-    
     double meanX = mean(x, size);
-    double meanY = mean(y, size);
-    
-    for(int i = 0; i < size; i++){
-        // double xi =x[i];
-        // double yi =y[i];
+    double meanY = mean(y, size); 
+    for (int i = 0; i < size; i++)
         covariance += (x[i] - meanX) * (y[i] - meanY);
-        
-    }
-    
     return covariance/(size-1);
-    
 }
 
-double cov_mean(const double x[], const double y[], const int size){
-    
+double cov_mean(const double x[], const double y[], const int size) {
     double covariance = 0;
-    
-    for(int i = 0; i < size; i++){
-        // double xi =x[i];
-        // double yi =y[i];
+    for(int i = 0; i < size; i++)
         covariance += x[i] * y[i];
-        
-    }
-    
     return covariance/size;
-    
 }
 
-double corr(const double x[], const double y[], const int size){
-    
+double corr(const double x[], const double y[], const int size) {
     double nom = 0;
     double denomX = 0;
     double denomY = 0;
-    
     double meanX = mean(x, size);
     double meanY = mean(y, size);
     
-    for(int i = 0; i < size; i++){
+    for(int i = 0; i < size; i++) {
         nom += (x[i] - meanX) * (y[i] - meanY);
         denomX += (x[i] - meanX) * (x[i] - meanX);
         denomY += (y[i] - meanY) * (y[i] - meanY);
         
         //printf("x[%i]=%1.3f, y[%i]=%1.3f, nom[%i]=%1.3f, denomX[%i]=%1.3f, denomY[%i]=%1.3f\n", i, x[i], i, y[i], i, nom, i, denomX, i, denomY);
-    }
-    
+    }    
     return nom/sqrt(denomX * denomY);
-    
 }
 
-double autocorr_lag(const double x[], const int size, const int lag){
+double autocorr_lag(const double x[], const int size, const int lag) {
     
     return corr(x, &(x[lag]), size-lag);
     
 }
 
-double autocov_lag(const double x[], const int size, const int lag){
+double autocov_lag(const double x[], const int size, const int lag) {
     
     return cov_mean(x, &(x[lag]), size-lag);
     
 }
 
-void zscore_norm(double a[], int size)
-{
+void zscore_norm(double a[], int size) {
     double m = mean(a, size);
     double sd = stddev(a, size);
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
         a[i] = (a[i] - m) / sd;
-    }
     return;
 }
 
-void zscore_norm2(const double a[], const int size, double b[])
-{
+void zscore_norm2(const double a[], const int size, double b[]) {
     double m = mean(a, size);
     double sd = stddev(a, size);
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
         b[i] = (a[i] - m) / sd;
-    }
     return;
 }
 
-double moment(const double a[], const int size, const int start, const int end, const int r)
-{
+double moment(const double a[], const int size, const int start, const int end, const int r) {
     int win_size = end - start + 1;
     a += start;
     double m = mean(a, win_size);
     double mr = 0.0;
-    for (int i = 0; i < win_size; i++) {
+    for (int i = 0; i < win_size; i++)
         mr += pow(a[i] - m, r);
-    }
     mr /= win_size;
     mr /= stddev(a, win_size); //normalize
     return mr;
 }
 
-void diff(const double a[], const int size, double b[])
-{
-    for (int i = 1; i < size; i++) {
+void diff(const double a[], const int size, double b[]) {
+    for (int i = 1; i < size; i++)
         b[i - 1] = a[i] - a[i - 1];
-    }
 }
 
-int linreg(const int n, const double x[], const double y[], double* m, double* b) //, double* r)
-{
+int linreg(const int n, const double x[], const double y[], double* m, double* b) {
     double   sumx = 0.0;                      /* sum of x     */
     double   sumx2 = 0.0;                     /* sum of x**2  */
     double   sumxy = 0.0;                     /* sum of x * y */
@@ -235,7 +184,7 @@ int linreg(const int n, const double x[], const double y[], double* m, double* b
     }
     */
     
-    for (int i=0;i<n;i++){
+    for (int i=0;i<n;i++) {
         sumx  += x[i];
         sumx2 += x[i] * x[i];
         sumxy += x[i] * y[i];
@@ -264,18 +213,45 @@ int linreg(const int n, const double x[], const double y[], double* m, double* b
     
     return 0;
 }
+ 
+bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store) {
+    gsl_multifit_linear_workspace *ws;
+    gsl_matrix *cov, *X;
+    gsl_vector *y, *c;
+    double chisq;
 
-double norm_(const double a[], const int size)
-{
-    
-    double out = 0.0;
-    
-    for (int i = 0; i < size; i++)
-    {
-        out += a[i]*a[i];
+    int i, j;
+
+    X = gsl_matrix_alloc(obs, degree);
+    y = gsl_vector_alloc(obs);
+    c = gsl_vector_alloc(degree);
+    cov = gsl_matrix_alloc(degree, degree);
+
+    for (i = 0; i < obs; i++) {
+        for (j = 0; j < degree; j++)
+            gsl_matrix_set(X, i, j, pow(dx[i], j));
+        gsl_vector_set(y, i, dy[i]);
     }
-    
+
+    ws = gsl_multifit_linear_alloc(obs, degree);
+    gsl_multifit_linear(X, y, c, cov, &chisq, ws);
+
+    /* store result ... */
+    for (i = 0; i < degree; i++)
+        store[i] = gsl_vector_get(c, i);
+
+    gsl_multifit_linear_free(ws);
+    gsl_matrix_free(X);
+    gsl_matrix_free(cov);
+    gsl_vector_free(y);
+    gsl_vector_free(c);
+    return true; /* If correctly computes, return true */
+}
+
+double norm_(const double a[], const int size) {
+    double out = 0.0;
+    for (int i = 0; i < size; i++)
+        out += a[i]*a[i];
     out = sqrt(out);
-    
     return out;
 }

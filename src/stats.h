@@ -3,6 +3,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gsl/gsl_multifit.h>
+#include <stdbool.h>
 
 extern double max_(const double a[], const int size);
 extern double min_(const double a[], const int size);
@@ -24,6 +26,8 @@ extern void zscore_norm2(const double a[], const int size, double b[]);
 extern double moment(const double a[], const int size, const int start, const int end, const int r);
 extern void diff(const double a[], const int size, double b[]);
 extern int linreg(const int n, const double x[], const double y[], double* m, double* b); //, double* r);
+extern bool polynomialfit(int obs, int degree, 
+		   double *dx, double *dy, double *store); /* n, p */
 extern double norm_(const double a[], const int size);
 
 #endif

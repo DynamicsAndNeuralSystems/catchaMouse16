@@ -7,6 +7,7 @@ CFLAGS += -g
 CFLAGS += -pedantic
 #CFLAGS += -Wmissing-declarations
 CFLAGS += -w #disable warnings
+CFLAGS += -lm -lgsl -lgslcblas #gsl
 
 TARGET_EXEC ?= run
 
@@ -23,7 +24,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 
 $(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)

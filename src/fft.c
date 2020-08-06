@@ -20,8 +20,7 @@ typedef _Dcomplex cplx;
 
 #include "helper_functions.h"
 
-void twiddles(cplx a[], int size)
-{
+void twiddles(cplx a[], int size) {
 
     double PI = 3.14159265359;
 
@@ -32,8 +31,7 @@ void twiddles(cplx a[], int size)
     }
 }
 
-static void _fft(cplx a[], cplx out[], int size, int step, cplx tw[])
-{   
+static void _fft(cplx a[], cplx out[], int size, int step, cplx tw[]) {   
     if (step < size) {
         _fft(out, a, size, step * 2, tw);
         _fft(out + step, a + step, size, step * 2, tw);
@@ -47,8 +45,7 @@ static void _fft(cplx a[], cplx out[], int size, int step, cplx tw[])
     }
 }
 
-void fft(cplx a[], int size, cplx tw[])
-{
+void fft(cplx a[], int size, cplx tw[]) {
     cplx * out = malloc(size * sizeof(cplx));
     memcpy(out, a, size * sizeof(cplx));
     _fft(a, out, size, 1, tw);
