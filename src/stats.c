@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <gsl/gsl_multifit.h>
 #include "helper_functions.h"
 
 double min_(const double a[], const int size) {
@@ -213,7 +214,8 @@ int linreg(const int n, const double x[], const double y[], double* m, double* b
     
     return 0;
 }
- 
+
+
 bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store) {
     gsl_multifit_linear_workspace *ws;
     gsl_matrix *cov, *X;
@@ -236,7 +238,7 @@ bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store) {
     ws = gsl_multifit_linear_alloc(obs, degree);
     gsl_multifit_linear(X, y, c, cov, &chisq, ws);
 
-    /* store result ... */
+    // store result ...
     for (i = 0; i < degree; i++)
         store[i] = gsl_vector_get(c, i);
 
@@ -245,7 +247,7 @@ bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store) {
     gsl_matrix_free(cov);
     gsl_vector_free(y);
     gsl_vector_free(c);
-    return true; /* If correctly computes, return true */
+    return true; // If correctly computes, return true 
 }
 
 double norm_(const double a[], const int size) {

@@ -12,12 +12,14 @@
 int compare_array(const void * a, const void * b) {
     struct array *na = (struct array *)a;
     struct array *nb = (struct array *)b;
+    int res;
     if(na->data < nb->data)
-        return 1;
-    if(na->data < nb->data)
-        return 0;
+        res = 1;
+    if(na->data == nb->data)
+        res = 0;
     if(na->data > nb->data)
-        return -1;
+        res = -1;
+    return res;
 }
 
 // Comparator for integer type, to sort in ascending order
@@ -29,14 +31,8 @@ int compare_int(const void * a, const void * b) {
 void abs_array(const double y[], int size, struct array *abs_y) {
     int i;
     for(i = 0; i < size; i++) {
-        if(y[i] < 0) {
-            abs_y[i].data = -y[i];
-            abs_y[i].ind = i;
-        }
-        else {
-            abs_y[i].data = y[i];
-            abs_y[i].ind = i;
-        }
+        abs_y[i].data = fabs(y[i]);
+        abs_y[i].ind = i;
     }
 }
 

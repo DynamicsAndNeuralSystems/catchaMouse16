@@ -65,12 +65,13 @@ double CO_AddNoise_1_even_10_ami_at_10(const double y[], const int size) {
 
     gsl_rng * rr;
 
-    int n = 10;
+    //int n = 10;
     double mu = 1.0;
 
     gsl_rng_env_setup();
     rr = gsl_rng_alloc (gsl_rng_mt19937);
-    gsl_rng_set(rr, 0);
+    long seed = 0;
+    gsl_rng_set(rr, seed);
     /*for (i = 0; i < n; i++) 
     {
         printf(" %lf", gsl_ran_gaussian_ziggurat (rr, mu));
@@ -78,8 +79,11 @@ double CO_AddNoise_1_even_10_ami_at_10(const double y[], const int size) {
     printf("\n");*/
     
     // twister random generator
-    for (i = 0; i < size; i++)
+    //printf("noise is:\n");
+    for (i = 0; i < size; i++) {
         noise[i] = gsl_ran_gaussian_ziggurat(rr, mu);
+        //printf("%lf, ", noise[i]);
+    }//printf("\n");
 
     int numRepeats = 50;
     double *noiseRange = (double*) malloc(numRepeats * sizeof(double));
@@ -100,7 +104,7 @@ double CO_AddNoise_1_even_10_ami_at_10(const double y[], const int size) {
         }
     }
     
-    double out;
+    double out = 0;
     for (i = 0; i < numRepeats; i++) {
         if (noiseRange[i] >= 1) { // noiseLevel = 1
             out = amis[i];

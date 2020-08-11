@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "stats.h"
 #include "CO_AutoCorr.h"
+#include "SC_FluctAnal.h"
 
 #include <gsl/gsl_multifit.h>
 #include <gsl/gsl_randist.h>
@@ -17,7 +18,7 @@ double dofit(const gsl_multifit_robust_type *T, const gsl_matrix *X, const gsl_v
 
     s = gsl_multifit_robust(X, y, c, cov, work);
 
-    gsl_multifit_robust_stats stat = gsl_multifit_robust_statistics(work);
+    //gsl_multifit_robust_stats stat = gsl_multifit_robust_statistics(work);
     return sqrt(gsl_matrix_get(cov, 1, 1)); // standard error of mean
 }
 
@@ -29,7 +30,7 @@ double SC_FluctAnal_2_dfa_50_2_logi_r2_se2(const double y[], const int size) {
         if (isnan(y[i]))
             return NAN;
     
-    int lag = 2;
+    //int lag = 2;
 
     // generate log spaced tau vector
     double linLow = log(5);

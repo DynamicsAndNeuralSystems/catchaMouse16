@@ -1,6 +1,6 @@
 #include "FC_LoopLocalSimple.h"
-#include "CO_AutoCorr.h"
-#include "SY_SlidingWindow.h"
+//#include "CO_AutoCorr.h"
+//#include "SY_SlidingWindow.h"
 #include "stats.h"
 
 #include <stdio.h>
@@ -14,21 +14,21 @@ double FC_LocalSimple(const double y[], const int size, int trainLength) {
     int lp = trainLength;
 
     // range over which to evaluate
-    int evalr_len = size - lp;
+    int evalr_len = size - lp; //lp+1:N
     if (evalr_len == 0) {
         printf("FC_LocalSimple: Time Series too short for forecasting\n");
         return NAN;
     }
     int *evalr = (int*) malloc(evalr_len * sizeof(int));
     for (i = 0; i < evalr_len; i++)
-        evalr[i] = i + lp;
-    
+        evalr[i] = i + lp + 1;
 
     double *res = (double*) malloc(evalr_len * sizeof(double));
+    memset(res, 0, evalr_len * sizeof(double));
     for (i = 0; i < evalr_len; i++) {
-        for (j = evalr[i] - lp; j < evalr[i]; j++)
+        for (j = evalr[i] - lp - 1; j < evalr[i] - 1; j++)
             res[i] += y[j];
-        res[i] = (res[i]/lp) - y[evalr[i]];
+        res[i] = (res[i]/lp) - y[evalr[i] - 1];
     }
 
     double out = stddev(res, evalr_len);
