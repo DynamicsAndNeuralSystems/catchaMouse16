@@ -30,15 +30,25 @@ char* concat_str(const char *s1, const char *s2)
 
 int main()
 {
-    
-    //printf("%*s\n", strcat(strcat("Input/","Left_CAMK_excitatory"),"/hctsa_timeseries-data.csv"));
 
-    char *feature_list[] = {"SY_DriftingMean50_min","DN_RemovePoints_absclose_05_remove_ac2rat","AC_nl_036","AC_nl_112","ST_LocalExtrema_n100_diffmaxabsmin",
-                            "IN_AutoMutualInfoStats_diff_20_gaussian_ami8","CO_HistogramAMI_even_2_3","CO_TranslateShape_circle_35_pts_statav4_m",
-                            "CO_AddNoise_1_even_10_ami_at_10","PH_Walker_momentum_5_w_momentumzcross","SC_FluctAnal_2_dfa_50_2_logi_r2_se2",
-                            "PH_Walker_biasprop_05_01_sw_meanabsdiff","CO_HistogramAMI_even_10_3","AC_nl_035","FC_LoopLocalSimple_mean_stderr_chn",
-                            "CO_TranslateShape_circle_35_pts_std"};
-    char *taskNames[] = {"Left_CAMK_excitatory","Left_CAMK_PVCre","Left_CAMK_SHAM","Left_excitatory_PVCre","Left_excitatory_SHAM","Left_PVCre_SHAM","Right_CAMK_excitatory","Right_CAMK_PVCre","Right_CAMK_SHAM","Right_excitatory_PVCre","Right_excitatory_SHAM","Right_PVCre_SHAM"};
+    char *feature_list[] = {"SY_DriftingMean50_min",
+    "DN_RemovePoints_absclose_05_remove_ac2rat",
+    "AC_nl_036",
+    "AC_nl_112",
+    "ST_LocalExtrema_n100_diffmaxabsmin",
+    "CO_TranslateShape_circle_35_pts_statav4_m",
+    "CO_TranslateShape_circle_35_pts_std",
+    "SC_FluctAnal_2_dfa_50_2_logi_r2_se2",
+    "IN_AutoMutualInfoStats_diff_20_gaussian_ami8",
+    "PH_Walker_momentum_5_w_momentumzcross",
+    "PH_Walker_biasprop_05_01_sw_meanabsdiff",
+    "FC_LoopLocalSimple_mean_stderr_chn",
+    "CO_HistogramAMI_even_10bin_ami3",
+    "CO_HistogramAMI_even_2bin_ami3",
+    "AC_nl_035",
+    "CO_AddNoise_1_even_10_ami_at_10"
+    };
+    char *taskNames[] = {"HCTSA_D1cnt_D1exc_loop_N","HCTSA_D1cnt_D1inh_loop_N","HCTSA_D1exc_D1inh_loop_N","Left_CAMK_excitatory","Left_CAMK_PVCre","Left_CAMK_SHAM","Left_excitatory_PVCre","Left_excitatory_SHAM","Left_PVCre_SHAM","Right_CAMK_excitatory","Right_CAMK_PVCre","Right_CAMK_SHAM","Right_excitatory_PVCre","Right_excitatory_SHAM","Right_PVCre_SHAM"};
     int total_feat = 16;
     //int total_task = 12;
     //char *taskNames = "Left_CAMK_excitatory";
@@ -56,22 +66,6 @@ int main()
     // check the id of feature in hctsa_features.csv
     int *feature_ids = (int*) malloc(total_feat*sizeof(int));
 
-    /*feature_ids[0] = 2225;
-    feature_ids[1] = 1704;
-    feature_ids[2] = 184;
-    feature_ids[3] = 187;
-    feature_ids[4] = 3475;
-    feature_ids[5] = 386;
-    feature_ids[6] = 241;
-    feature_ids[7] = 1885;
-    feature_ids[8] = 1192;
-    feature_ids[9] = 2726;
-    feature_ids[10] = 4181;
-    feature_ids[11] = 2667;
-    feature_ids[12] = 251;
-    feature_ids[13] = 180;
-    feature_ids[14] = 3098;
-    feature_ids[15] = 1870;*/
     char feat_line[1024];
     int first = 1;
     while (fgets(feat_line, 1024, fp2)) {
@@ -87,7 +81,7 @@ int main()
             if (field_no==0) {
                 fid = atoi(subfield);
             }
-            else if (field_no==2) {
+            else if (field_no==1) {
                 for(int i = 0; i < total_feat; i++) {
                     if ( !strcmp(subfield, feature_list[i]) )
                         feature_ids[i] = fid;
@@ -101,6 +95,7 @@ int main()
         }
         //break;
     }
+
     /*for(int i = 0; i < total_feat; i++) {
         printf("%d\t", feature_ids[i]);
     }*/
@@ -114,12 +109,13 @@ int main()
     int row_count = 0;
     int field_count = 0;
     //int *ts_len = (double*) malloc(1000 * sizeof(int));
-
+    double total_time = 0;
 
     while (fgets(line, 10000*12, fp1)) {
         field_count = 0;
         row_count++;
-        printf("Reading the time series..\n");
+        printf("row: %d\n",row_count);
+        //printf("Reading the time series..\n");
         double *ts = (double*) malloc(10000*sizeof(double));
         double *ts_norm = (double*) malloc(10000*sizeof(double));
         int ts_ind = 0;
@@ -131,12 +127,12 @@ int main()
             field_count++;
         }
         zscore_norm2(ts, ts_ind, ts_norm);
-        //printf("ts[0] = %lf\n", ts[]);
+        //printf("ts[0] = %lf\n", ts[0]);
 
         // compute my version of feature on TS
         
         // ... for all features ...
-        printf("Computing the feature values..\n");
+        //printf("Computing the feature values..\n");
         
         begin = clock();
         feature_val[0] = SY_DriftingMean50_min(ts_norm, ts_ind);
@@ -159,32 +155,31 @@ int main()
         feature_time[4] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
 
         begin = clock();
-        feature_val[5] = IN_AutoMutualInfoStats_diff_20_gaussian_ami8(ts_norm, ts_ind);
+        feature_val[5] = CO_TranslateShape_circle_35_pts_statav4_m(ts_norm, ts_ind);
         feature_time[5] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
 
         begin = clock();
-        feature_val[6] = CO_HistogramAMI_even_2_3(ts_norm, ts_ind);
+        feature_val[6] = CO_TranslateShape_circle_35_pts_std(ts_norm, ts_ind);
         feature_time[6] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
 
         begin = clock();
-        feature_val[7] = CO_TranslateShape_circle_35_pts_statav4_m(ts_norm, ts_ind);
+        feature_val[7] = SC_FluctAnal_2_dfa_50_2_logi_r2_se2(ts_norm, ts_ind);
         feature_time[7] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
-        // CO_AddNoise -- id = 1192
-        
+
         begin = clock();
-        feature_val[8] = CO_AddNoise_1_even_10_ami_at_10(ts_norm, ts_ind);
+        feature_val[8] = IN_AutoMutualInfoStats_diff_20_gaussian_ami8(ts_norm, ts_ind);
         feature_time[8] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
 
         begin = clock();
         feature_val[9] = PH_Walker_momentum_5_w_momentumzcross(ts_norm, ts_ind);
-        feature_time[9] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
+        feature_time[9] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;       
 
         begin = clock();
-        feature_val[10] = SC_FluctAnal_2_dfa_50_2_logi_r2_se2(ts_norm, ts_ind);
+        feature_val[10] = PH_Walker_biasprop_05_01_sw_meanabsdiff(ts_norm, ts_ind);
         feature_time[10] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
 
         begin = clock();
-        feature_val[11] = PH_Walker_biasprop_05_01_sw_meanabsdiff(ts_norm, ts_ind);
+        feature_val[11] = FC_LoopLocalSimple_mean_stderr_chn(ts_norm, ts_ind);
         feature_time[11] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
 
         begin = clock();
@@ -192,15 +187,16 @@ int main()
         feature_time[12] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
 
         begin = clock();
-        feature_val[13] = AC_nl_035(ts_norm, ts_ind);
+        feature_val[13] = CO_HistogramAMI_even_2_3(ts_norm, ts_ind);
         feature_time[13] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
 
         begin = clock();
-        feature_val[14] = FC_LoopLocalSimple_mean_stderr_chn(ts_norm, ts_ind);
+        feature_val[14] = AC_nl_035(ts_norm, ts_ind);
         feature_time[14] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
-
+        // CO_AddNoise -- id = 1192
+        
         begin = clock();
-        feature_val[15] = CO_TranslateShape_circle_35_pts_std(ts_norm, ts_ind);
+        feature_val[15] = CO_AddNoise_1_even_10_ami_at_10(ts_norm, ts_ind);
         feature_time[15] = (double)(clock()-begin)*1000/CLOCKS_PER_SEC;
 
         for (int i = 0; i < total_feat; i++) {
@@ -211,13 +207,21 @@ int main()
                 fprintf(fp5, ", ");
             }
         }
+        double time = 0;
+        // Calculate total time to compute all features
+        for (int i = 0; i < total_feat; i++)
+        {
+            time += feature_time[i];
+        }
+        total_time += time;
         fprintf(fp4, "\n");
         fprintf(fp5, "\n");
         // now compare with the value in datamatrix.csv in that index   
         free(ts_norm);
         free(ts);
-        //break; // only compare for the first time series
+        break; // only compare for the first time series
     }
+    total_time /= row_count; 
     //exit(0);
 
     /*for (int i = 0; i < total_feat; i++)
@@ -241,7 +245,7 @@ int main()
         }
         break; // only compare for first time series
     }
-
+    printf("Average total time taken is %lf, %lf\n", total_time, total_time/1000);
     free(feature_val);
     free(feature_ids);
 
@@ -249,6 +253,7 @@ int main()
     fclose(fp2);
     fclose(fp3);
     fclose(fp4);
+    fclose(fp5);
     
     return 0;
 }

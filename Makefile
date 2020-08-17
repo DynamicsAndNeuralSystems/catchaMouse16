@@ -9,12 +9,12 @@ CFLAGS += -pedantic
 CFLAGS += -w #disable warnings
 CFLAGS += -lm -lgsl -lgslcblas #gsl
 
-TARGET_EXEC ?= run
+TARGET_EXEC ?= run_feat
 
 BUILD_DIR ?= ./bin
 SRC_DIRS ?= ./src
 
-SRCS := $(shell find $(SRC_DIRS) -name *.c)
+SRCS := $(shell find $(SRC_DIRS) -name "*.c")
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
