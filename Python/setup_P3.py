@@ -7,10 +7,10 @@ sourceFileList = [sourceDir+file for file in os.listdir(sourceDir) if file.endsw
 
 # the c++ extension module
 extension_mod = Extension("catchaMouse16_C", 
-	sources=["catchaMouse16_wrap.c"] + sourceFileList, 
+	sources=["catchaMouse16_wrap_P3.c"] + sourceFileList, 
 	include_dirs=[sourceDir], libraries=["gsl", "gslcblas"])
 
-# setup(name = "catchaMouse16", ext_modules=[extension_mod])
+# setup(name = "catch22", ext_modules=[extension_mod], packages=['catch22'])
 
 setup(
 name="catchaMouse16",
@@ -21,7 +21,7 @@ description="CAnonical Time-series Features for mouse fMRI, see description and 
 ext_modules=[extension_mod],
 packages=['catchaMouse16'],
 classifiers=[
-    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
     ],

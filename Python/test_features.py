@@ -10,7 +10,7 @@ def giveMeFeatureVector(tsData):
     '''
     features = dir(catchaMouse16)
     features = [item for item in features if not '__' in item]
-
+    features = features[:16]
     featureVector = []
     for testFun in features:
         featureFun = getattr(catchaMouse16,testFun)
@@ -20,6 +20,6 @@ def giveMeFeatureVector(tsData):
 
 #-------------------------------------------------------------------------------
 
-x = pd.read_csv('test_ts.csv',header=None);
+x = pd.read_csv('../test_ts.csv',header=None);
 tsData = x[0].values.tolist()
 fV = giveMeFeatureVector(tsData)
