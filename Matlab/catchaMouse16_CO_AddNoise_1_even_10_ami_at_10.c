@@ -3,11 +3,11 @@
 
 #include "M_wrapper.h"
 
-#include "../src/CO_AddNoise.h"
-#include "../src/helper_functions.h"
-#include "../src/histcounts.h"
-#include "../src/stats.h"
-#include "../src/CO_HistogramAMI.h"
+#include "../C/src/CO_AddNoise.h"
+#include "../C/src/helper_functions.h"
+#include "../C/src/histcounts.h"
+#include "../C/src/stats.h"
+#include "../C/src/CO_HistogramAMI.h"
 
 void mexFunction( int nlhs, mxArray *plhs[], 
       int nrhs, const mxArray*prhs[] )

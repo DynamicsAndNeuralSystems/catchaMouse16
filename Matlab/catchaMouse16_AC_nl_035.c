@@ -3,11 +3,11 @@
 
 #include "M_wrapper.h"
 
-#include "../src/CO_AutoCorr.h"
-#include "../src/CO_NonlinearAutocorr.h"
-#include "../src/fft.h"
-#include "../src/helper_functions.h"
-#include "../src/stats.h"
+#include "../C/src/CO_AutoCorr.h"
+#include "../C/src/CO_NonlinearAutocorr.h"
+#include "../C/src/fft.h"
+#include "../C/src/helper_functions.h"
+#include "../C/src/stats.h"
 
 void mexFunction( int nlhs, mxArray *plhs[], 
       int nrhs, const mxArray*prhs[] )

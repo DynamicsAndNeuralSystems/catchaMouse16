@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <gsl/gsl_randist.h>
+#include <sys/time.h>
 
 #include "CO_AddNoise.h"
 #include "helper_functions.h"
@@ -68,6 +69,9 @@ double CO_AddNoise_1_even_10_ami_at_10(const double y[], const int size) {
 
     gsl_rng_env_setup();
     rr = gsl_rng_alloc (gsl_rng_mt19937);
+    //struct timeval tv; // Seed generation based on time
+    //gettimeofday(&tv,0);
+    //unsigned long seed = iter;//tv.tv_sec + tv.tv_usec;
     long seed = 0;
     gsl_rng_set(rr, seed);
     

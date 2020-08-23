@@ -8,6 +8,7 @@ CFLAGS += -pedantic
 #CFLAGS += -Wmissing-declarations
 CFLAGS += -w #disable warnings
 CFLAGS += -lm -lgsl -lgslcblas #gsl
+CFLAGS += -O2
 
 TARGET_EXEC ?= run_feat
 

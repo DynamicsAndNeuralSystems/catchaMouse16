@@ -3,9 +3,9 @@
 
 #include "M_wrapper.h"
 
-#include "../src/PH_Walker.h"
-#include "../src/stats.h"
-#include "../src/helper_functions.h"
+#include "../C/src/PH_Walker.h"
+#include "../C/src/stats.h"
+#include "../C/src/helper_functions.h"
 
 void mexFunction( int nlhs, mxArray *plhs[], 
       int nrhs, const mxArray*prhs[] )

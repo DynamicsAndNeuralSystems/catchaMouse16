@@ -3,7 +3,7 @@
 
 #include "M_wrapper.h"
 
-#include "../src/ST_LocalExtrema.h"
+#include "../C/src/ST_LocalExtrema.h"
 
 void mexFunction( int nlhs, mxArray *plhs[], 
       int nrhs, const mxArray*prhs[] )

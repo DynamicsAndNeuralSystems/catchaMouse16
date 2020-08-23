@@ -3,9 +3,9 @@
 
 #include "M_wrapper.h"
 
-#include "../src/CO_TranslateShape.h"
-#include "../src/SY_SlidingWindow.h"
-#include "../src/stats.h"
+#include "../C/src/CO_TranslateShape.h"
+#include "../C/src/SY_SlidingWindow.h"
+#include "../C/src/stats.h"
 
 void mexFunction( int nlhs, mxArray *plhs[], 
       int nrhs, const mxArray*prhs[] )

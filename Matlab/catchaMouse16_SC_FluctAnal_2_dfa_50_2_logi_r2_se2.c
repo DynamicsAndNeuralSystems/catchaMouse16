@@ -3,9 +3,9 @@
 
 #include "M_wrapper.h"
 
-#include "../src/stats.h"
-#include "../src/CO_AutoCorr.h"
-#include "../src/SC_FluctAnal.h"
+#include "../C/src/stats.h"
+#include "../C/src/CO_AutoCorr.h"
+#include "../C/src/SC_FluctAnal.h"
 
 void mexFunction( int nlhs, mxArray *plhs[], 
       int nrhs, const mxArray*prhs[] )

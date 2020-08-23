@@ -3,8 +3,8 @@
 
 #include "M_wrapper.h"
 
-#include "../src/FC_LoopLocalSimple.h"
-#include "../src/stats.h"
+#include "../C/src/FC_LoopLocalSimple.h"
+#include "../C/src/stats.h"
 
 void mexFunction( int nlhs, mxArray *plhs[], 
       int nrhs, const mxArray*prhs[] )
