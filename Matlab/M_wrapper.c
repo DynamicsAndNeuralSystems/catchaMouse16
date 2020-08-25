@@ -9,7 +9,7 @@ void M_wrapper_double( int nlhs, mxArray *plhs[],
      
 { 
     double *inMatrix;       /* 1xN input matrix */
-    int ncols;
+    int nrows;
     double *outMatrix; /* output matrix */
     
     // check inputs
@@ -26,14 +26,14 @@ void M_wrapper_double( int nlhs, mxArray *plhs[],
         mexErrMsgIdAndTxt("catchaMouse16:notDouble",
             "Input vector must be type double.");
     }
-    if(mxGetM(prhs[0]) != 1) {
-        mexErrMsgIdAndTxt("catchaMouse16:notRowVector",
-                          "Input must be a row vector.");
+    if(mxGetN(prhs[0]) != 1) {
+        mexErrMsgIdAndTxt("catchaMouse16:notColumnVector",
+                          "Input must be a column vector.");
     }
     
     // get input
     inMatrix = mxGetPr(prhs[0]);
-    ncols = mxGetN(prhs[0]);
+    nrows = mxGetM(prhs[0]);
     
     // set output
     plhs[0] = mxCreateDoubleMatrix(1,1,mxREAL);
@@ -42,15 +42,15 @@ void M_wrapper_double( int nlhs, mxArray *plhs[],
     // calculate result
     if (normalize){
         
-        double * y_zscored = malloc(ncols * sizeof * y_zscored);
-        zscore_norm2(inMatrix, ncols, y_zscored);
+        double * y_zscored = malloc(nrows * sizeof * y_zscored);
+        zscore_norm2(inMatrix, nrows, y_zscored);
 
-        outMatrix[0] = f(y_zscored, ncols);
+        outMatrix[0] = f(y_zscored, nrows);
 
         free(y_zscored);
     } 
     else {
-        outMatrix[0] = f(inMatrix, ncols);
+        outMatrix[0] = f(inMatrix, nrows);
     }   
     
     return;
@@ -63,7 +63,7 @@ void M_wrapper_int( int nlhs, mxArray *plhs[],
      
 { 
     double *inMatrix;       /* 1xN input matrix */
-    int ncols;
+    int nrows;
     int *outMatrix; /* output matrix */
     
     // check inputs
@@ -80,14 +80,14 @@ void M_wrapper_int( int nlhs, mxArray *plhs[],
         mexErrMsgIdAndTxt("catchaMouse16:notDouble",
             "Input vector must be type double.");
     }
-    if(mxGetM(prhs[0]) != 1) {
-        mexErrMsgIdAndTxt("catchaMouse16:notRowVector",
-                          "Input must be a row vector.");
+    if(mxGetN(prhs[0]) != 1) {
+        mexErrMsgIdAndTxt("catchaMouse16:notColumnVector",
+                          "Input must be a column vector.");
     }
     
     // get input
     inMatrix = mxGetPr(prhs[0]);
-    ncols = mxGetN(prhs[0]);
+    nrows = mxGetM(prhs[0]);
     
     // set output
     plhs[0] = mxCreateNumericMatrix(1,1, mxINT32_CLASS, mxREAL);
@@ -96,15 +96,15 @@ void M_wrapper_int( int nlhs, mxArray *plhs[],
     // calculate result
     if (normalize){
         
-        double * y_zscored = malloc(ncols * sizeof * y_zscored);
-        zscore_norm2(inMatrix, ncols, y_zscored);
+        double * y_zscored = malloc(nrows * sizeof * y_zscored);
+        zscore_norm2(inMatrix, nrows, y_zscored);
 
-        outMatrix[0] = f(y_zscored, ncols);
+        outMatrix[0] = f(y_zscored, nrows);
 
         free(y_zscored);
     } 
     else {
-        outMatrix[0] = f(inMatrix, ncols);
+        outMatrix[0] = f(inMatrix, nrows);
     }   
     
     return;
