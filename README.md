@@ -29,6 +29,11 @@ It should print the following
 -L/usr/local/Cellar/gsl/2.6/lib -lgsl
 ```
 
+In Linux, GSL can be simply installed via
+```
+sudo apt-get install libgsl-dev
+```
+
 # Using the *catchaMouse16*-features from C, Matlab and Python
 
 The features are efficiently implemented in C and it can also be used in Matlab and Python. Currently it has been tested only on OS X.

@@ -23,3 +23,5 @@ def giveMeFeatureVector(tsData):
 x = pd.read_csv('../test_ts.csv',header=None);
 tsData = x[0].values.tolist()
 fV = giveMeFeatureVector(tsData)
+print(fV)
+print("Test Successful!")
