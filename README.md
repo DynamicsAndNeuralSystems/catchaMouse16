@@ -9,7 +9,7 @@ For information on the full set of over 7000 features, see the following (open) 
 
 
 
-# Installation of additional libraries
+# Prerequisite: Installation of additional libraries
 
 Install GSL library using brew (for Mac Users):
 ```
