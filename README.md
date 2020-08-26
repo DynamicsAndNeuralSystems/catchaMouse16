@@ -80,7 +80,7 @@ catchaMouse16_AC_nl_035(ts_data)
 
 ## Python
 
-The wrapper needs to be build with linked C library before being importable into some python code. Installation procedure for Python 2 and Python 3 are given below.
+The wrapper needs to be build with linked C library before being importable into some python code. Installation procedure for Python 2 and Python 3 are given below. (If there is a permission denial try with 'sudo')
 
 ### Install in Python 2
 Copy the following command and run it inside the 'Python' directory
