@@ -19,24 +19,19 @@ If there is a permission denied error, try this and install again:
 ```
 $ sudo chown -R $(whoami) $(brew --prefix)/*
 ```
-Check if it is installed correctly with command
+Check if it is installed correctly with this command (it should print the path of the library)
 ```
 $ gsl-config --cflags --libs-without-cblas
-```
-It should print the following
-```
--I/usr/local/Cellar/gsl/2.6/include
--L/usr/local/Cellar/gsl/2.6/lib -lgsl
 ```
 
 In Linux, GSL can be simply installed via
 ```
-sudo apt-get install libgsl-dev
+$ sudo apt-get install libgsl-dev
 ```
 
 # Using the *catchaMouse16*-features from C, Matlab and Python
 
-The features are efficiently implemented in C and it can also be used in Matlab and Python. Currently it has been tested only on OS X.
+The features are efficiently implemented in C and it can also be used in Matlab and Python. Currently it has been tested only on OS X and Linux platforms.
 
 ## Raw C
 
@@ -55,6 +50,7 @@ $ ./run_feat <infile> <outfile>
 
 The outfile is optional. If not provided then it will print in stdout.
 
+Each line of the output corresponds to a feature with the following comma-separated entries: `feature value`, `name` and `execution time` 
 
 ## Matlab
 
