@@ -20,9 +20,9 @@ For information on the full set of over 7000 features, see the following (open) 
 The pipeline to reproduce to create the catchaMouse16 feature set is an adaptation of the general pipeline from C.H. Lubba, S.S. Sethi, P. Knaute, S.R. Schultz, B.D. Fulcher, N.S. Jones. [_catch22_: CAnonical Time-series CHaracteristics](https://doi.org/10.1007/s10618-019-00647-x). *Data Mining and Knowledge Discovery* (2019) for a specific fMRI mouse data set.
 
 
-## [&#x1F4D2;&#x1F4D8;&#x1F4D7;___catchaMouse16_ documentation__](https://github.com/DynamicsAndNeuralSystems/catchaMouse16/)
+## [&#x1F4D2;&#x1F4D8;&#x1F4D7;___catchaMouse16_ documentation__](https://time-series-features.gitbook.io/time-series-analysis-tools/feature-subsets/catchamouse16)
 
-There is [comprehensive documentation](https://github.com/DynamicsAndNeuralSystems/catchaMouse16/) for _catchaMouse16_, including:
+There is [comprehensive documentation](https://time-series-features.gitbook.io/time-series-analysis-tools/feature-subsets/catchamouse16) for _catchaMouse16_, including:
 
 - Installation instructions (across C, python, and Matlab)
 - Information about the theory behind and behavior of each of the features,
