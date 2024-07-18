@@ -23,7 +23,7 @@ There is [comprehensive documentation](https://time-series-features.gitbook.io/t
 
 If you use this software, please read and cite this open-access article:
 
-- &#x1F4D7; PREPINT OF THE PAPER.
+- &#x1F4D7; [Canonical time-series features for characterizing biologically informative dynamical patterns in fMRI, bioRxiv ](https://www.biorxiv.org/content/10.1101/2024.07.14.603477).
 
 ## Performance Summary
 
