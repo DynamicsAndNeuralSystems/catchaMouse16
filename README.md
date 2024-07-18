@@ -1,6 +1,6 @@
 <p align="center"><img src="img/catch_a_mouse16_vecorized.svg" alt="catch22 logo" height="220"/></p>
 
-<h1 align="center"><em>catchaMouse16</em>: CAnonical Time-series CHaracteristics for Mouse fMRI</h1>
+<h1 align="center"><em>catchaMouse16</em>: CAnonical Time-series CHaracteristics for fMRI (trained on mouse data)</h1>
 
 <p align="center">
  	<!-- <a href="https://zenodo.org/badge/latestdoi/146194807"><img src="https://zenodo.org/badge/146194807.svg" height="20"/></a> -->
