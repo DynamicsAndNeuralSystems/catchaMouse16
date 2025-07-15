@@ -23,14 +23,7 @@ There is [comprehensive documentation](https://time-series-features.gitbook.io/t
 
 If you use this software, please read and cite this open-access article:
 
-- &#x1F4D7; [Canonical time-series features for characterizing biologically informative dynamical patterns in fMRI, _bioRxiv_ (2024)](https://www.biorxiv.org/content/10.1101/2024.07.14.603477).
-
-## Performance Summary
-
-Summary of the performance of the _catch22_ feature set across 93 classification problems, and a comparison to the [_hctsa_ feature set](https://github.com/benfulcher/hctsa) (cf. Fig. 4 from [our paper][LINK TO BE ADDED]:
-
-![](img/PerformanceComparisonFig3.png)
-
+- &#x1F4D7; [Canonical time-series features for characterizing biologically informative dynamical patterns in fMRI, _Aperture_ (2025)](https://doi.org/10.52294/001c.140433).
 
 # Contribution
 
