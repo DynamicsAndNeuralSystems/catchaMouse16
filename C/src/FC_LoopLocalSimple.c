@@ -15,7 +15,7 @@ double FC_LocalSimple(const double y[], const int size, int trainLength) {
 
     // range over which to evaluate
     int evalr_len = size - lp; //lp+1:N
-    if (evalr_len == 0) {
+    if (evalr_len <= 0) {
         printf("FC_LocalSimple: Time Series too short for forecasting\n");
         return NAN;
     }
