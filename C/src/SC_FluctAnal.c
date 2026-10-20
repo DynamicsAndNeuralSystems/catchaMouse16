@@ -57,8 +57,10 @@ double SC_FluctAnal_2_dfa_50_2_logi_r2_se2(const double y[], const int size) {
     }
     
     // fewer than 12 points -> leave.
+    // (hctsa returns NaN for ntau < 8, and for 8 <= ntau < 12 there is no
+    // valid break point, so r2 is empty and r2_se2 is NaN.)
     if (nTau < 12) {
-        return 0;
+        return NAN;
     }
     
     int sizeCS = size;
@@ -150,6 +152,19 @@ double SC_FluctAnal_2_dfa_50_2_logi_r2_se2(const double y[], const int size) {
         }
     }
     int r2_len = ntt - firstMinInd;
+
+    // as in hctsa (DoRobustLinearFit): fewer than 8 points in r2 -> NaN
+    if (r2_len < 8) {
+        free(yCS);
+        free(xReg);
+        free(F);
+        free(logtt);
+        free(logFF);
+        free(sserr);
+        free(buffer);
+        return NAN;
+    }
+
     int *r2 = (int*) malloc((r2_len)*sizeof(int));
     
     gsl_vector *r2_logtt, *r2_logFF;
