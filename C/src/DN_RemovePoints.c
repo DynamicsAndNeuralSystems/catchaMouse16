@@ -8,18 +8,17 @@
 #include "helper_functions.h"
 
 
-// Comparator for struct array type, to sort in descending order
+// Comparator for struct array type, to sort in descending order.
+// Ties are broken by ascending index, so that qsort reproduces MATLAB's
+// stable sort(...,'descend') (qsort itself is not stable).
 int compare_array(const void * a, const void * b) {
     struct array *na = (struct array *)a;
     struct array *nb = (struct array *)b;
-    int res;
     if(na->data < nb->data)
-        res = 1;
-    if(na->data == nb->data)
-        res = 0;
+        return 1;
     if(na->data > nb->data)
-        res = -1;
-    return res;
+        return -1;
+    return (na->ind > nb->ind) - (na->ind < nb->ind);
 }
 
 // Comparator for integer type, to sort in ascending order
