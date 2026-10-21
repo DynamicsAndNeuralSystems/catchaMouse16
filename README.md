@@ -107,7 +107,7 @@ If you use _catchaMouse16_, please cite the open-access paper:
 
 > I. Alam, B. Harris, P. Cahill, O. Cliff, M. Markicevic, V. Zerbi, B. D. Fulcher.
 > [Canonical time-series features for characterizing biologically informative dynamical patterns in fMRI](https://doi.org/10.52294/001c.140433).
-> _Aperture Neuro_ (2025).
+> _Aperture Neuro_ **5** (2025).
 
 <details>
 <summary>BibTeX</summary>
