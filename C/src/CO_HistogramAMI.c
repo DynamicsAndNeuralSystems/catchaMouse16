@@ -37,15 +37,23 @@ double CO_HistogramAMI_even(const double y[], const int size, const int numBins,
     const double maxValue = max_(y, size);
     const double minValue = min_(y, size);
     
-    double binStep = (maxValue - minValue + 0.2)/numBins; // problem
-    //double binEdges[numBins+1] = {0};
-	//double binEdges[10+1] = {0};
+    // hctsa: b = linspace(min(y)-0.1, max(y)+0.1, numBins+1). Compute the
+    // edges exactly as MATLAB's linspace does, so that values falling exactly
+    // on an edge (as happens for discrete data) are binned as in hctsa:
+    // interior edges are d1 + (i*(d2-d1))/n, or (2i-n)*(d2/n) when d1 == -d2,
+    // and the end points are exactly d1 and d2. (Checked bitwise against
+    // MATLAB R2026a's linspace on 500,000 random end points.)
+    const double d1 = minValue - 0.1;
+    const double d2 = maxValue + 0.1;
     double *binEdges = (double*) malloc((numBins+1) * sizeof(double));
-    memset(binEdges, 0, (numBins+1)*sizeof(double));
-    for (int i = 0; i < numBins+1; i++) {
-        binEdges[i] = minValue + binStep*i - 0.1;
-        //printf("binEdges[%i] = %1.3f\n", i, binEdges[i]);
+    for (int i = 1; i < numBins; i++) {
+        if (d1 == -d2)
+            binEdges[i] = (2*i - numBins) * (d2/numBins);
+        else
+            binEdges[i] = d1 + (i*(d2 - d1))/numBins;
     }
+    binEdges[0] = d1;
+    binEdges[numBins] = d2;
     
     
     // count histogram bin contents
