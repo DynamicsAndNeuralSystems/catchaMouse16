@@ -1,4 +1,18 @@
 function [featureValues, featureNames] = catchaMouse16_all(data)
+% catchaMouse16_all  Compute all 16 catchaMouse16 features of a time series.
+%
+% [featureValues, featureNames] = catchaMouse16_all(data)
+%
+% data is a row or column vector. Each feature z-scores the series first.
+% Run mexAll first to compile the feature functions.
+
+if ~(isnumeric(data) || islogical(data)) || ~isreal(data)
+    error('catchaMouse16:notReal', 'Input must be a real numeric vector.');
+end
+if ~isvector(data) && ~isempty(data)
+    error('catchaMouse16:notVector', 'Input must be a vector (row or column).');
+end
+data = double(data(:)); % the feature functions take a double column vector
 
 featureNames = ...
     { ...
@@ -27,7 +41,7 @@ for featureInd = 1:length(featureNames)
 
     fh = str2func(['catchaMouse16_', featureName]);
 
-    featureValues(featureInd) = fh(data');
+    featureValues(featureInd) = fh(data);
 
 end
     
