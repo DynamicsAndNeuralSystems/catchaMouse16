@@ -10,6 +10,8 @@ double SY_DriftingMean50_min(const double y[], const int size) { // let size = 2
         
     int l = 50; // Divide the time series into 50-sample segments
     int numFits = floor(size/l); // = 4
+    if (numFits < 1) // need at least one full segment
+        return NAN;
 
     double (*z)[l] = malloc( sizeof( double[numFits][l] ) );
 

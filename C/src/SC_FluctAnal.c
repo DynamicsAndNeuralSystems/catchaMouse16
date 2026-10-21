@@ -13,12 +13,12 @@
 double dofit(const gsl_multifit_robust_type *T, const gsl_matrix *X, const gsl_vector *y,
       gsl_vector *c, gsl_matrix *cov, int n)
 {    
-    int s;
     gsl_set_error_handler_off();
 
     gsl_multifit_robust_workspace * work = gsl_multifit_robust_alloc(T, X->size1, X->size2);
 
-    s = gsl_multifit_robust(X, y, c, cov, work);
+    gsl_multifit_robust(X, y, c, cov, work);
+    gsl_multifit_robust_free(work);
     
     //gsl_multifit_robust_stats stat = gsl_multifit_robust_statistics(work);
     return sqrt(gsl_matrix_get(cov, 1, 1)); // standard error of mean
@@ -57,8 +57,10 @@ double SC_FluctAnal_2_dfa_50_2_logi_r2_se2(const double y[], const int size) {
     }
     
     // fewer than 12 points -> leave.
+    // (hctsa returns NaN for ntau < 8, and for 8 <= ntau < 12 there is no
+    // valid break point, so r2 is empty and r2_se2 is NaN.)
     if (nTau < 12) {
-        return 0;
+        return NAN;
     }
     
     int sizeCS = size;
@@ -104,6 +106,7 @@ double SC_FluctAnal_2_dfa_50_2_logi_r2_se2(const double y[], const int size) {
         //if (strcmp(how, "dfa") == 0)
         F[i] = sqrt(F[i] / (nBuffer * tau[i]));        
         free(buffer);
+        free(coeff);
     }
     
     double * logtt = malloc(nTau * sizeof * logtt);
@@ -150,6 +153,19 @@ double SC_FluctAnal_2_dfa_50_2_logi_r2_se2(const double y[], const int size) {
         }
     }
     int r2_len = ntt - firstMinInd;
+
+    // as in hctsa (DoRobustLinearFit): fewer than 8 points in r2 -> NaN
+    if (r2_len < 8) {
+        free(yCS);
+        free(xReg);
+        free(F);
+        free(logtt);
+        free(logFF);
+        free(sserr);
+        free(buffer);
+        return NAN;
+    }
+
     int *r2 = (int*) malloc((r2_len)*sizeof(int));
     
     gsl_vector *r2_logtt, *r2_logFF;

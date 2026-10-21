@@ -27,14 +27,24 @@ CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 $(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS) $(CFLAGS) 
 
+# Value checks against hctsa v1.03: `make test`
+TEST_EXEC ?= run_tests
+LIB_OBJS := $(filter-out %/main.c.o,$(OBJS))
+
+$(TEST_EXEC): $(LIB_OBJS) $(BUILD_DIR)/tests/test_features.c.o
+	$(CC) $^ -o $@ $(LDFLAGS) $(CFLAGS)
+
+test: $(TEST_EXEC)
+	./$(TEST_EXEC) tests/data ../test_ts.csv
+
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
 	$(CC) $(CPPFLAGS) -c $< -o $@ $(CFLAGS)
 
-.PHONY: clean
+.PHONY: clean test
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	$(RM) -r $(BUILD_DIR) $(TEST_EXEC)
 
 -include $(DEPS)
 

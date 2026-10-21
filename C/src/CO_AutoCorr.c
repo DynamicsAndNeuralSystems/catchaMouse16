@@ -60,7 +60,8 @@ void dot_multiply(cplx a[], cplx b[], int size) {
 }
 
 double * CO_AutoCorr(const double y[], const int size, const int tau[], const int tau_size) {
-    double m, nFFT;
+    double m;
+    int nFFT;
     m = mean(y, size);
     nFFT = nextpow2(size) << 1;
 
@@ -97,9 +98,10 @@ double * CO_AutoCorr(const double y[], const int size, const int tau[], const in
         F[i] = _Cdivcc(F[i], divisor);
     }
     
-    double * out = malloc(tau_size * sizeof(out));
+    double * out = malloc(tau_size * sizeof *out);
     for (int i = 0; i < tau_size; i++) {
-        out[i] = creal(F[tau[i]]);
+        // as in hctsa, NaN for lags the series is too short for
+        out[i] = (tau[i] < size) ? creal(F[tau[i]]) : NAN;
     }
     free(F);
     free(tw);
@@ -107,7 +109,8 @@ double * CO_AutoCorr(const double y[], const int size, const int tau[], const in
 }
 
 double * co_autocorrs(const double y[], const int size) {
-    double m, nFFT;
+    double m;
+    int nFFT;
     m = mean(y, size);
     nFFT = nextpow2(size) << 1;
     
@@ -141,7 +144,7 @@ double * co_autocorrs(const double y[], const int size) {
     for (int i = 0; i < nFFT; i++)
         F[i] = _Cdivcc(F[i], divisor); // F[i] / divisor;
     
-    double * out = malloc(nFFT * 2 * sizeof(out));
+    double * out = malloc(nFFT * 2 * sizeof *out);
     for (int i = 0; i < nFFT; i++)
         out[i] = creal(F[i]);
 

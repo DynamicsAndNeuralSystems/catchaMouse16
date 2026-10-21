@@ -8,18 +8,17 @@
 #include "helper_functions.h"
 
 
-// Comparator for struct array type, to sort in descending order
+// Comparator for struct array type, to sort in descending order.
+// Ties are broken by ascending index, so that qsort reproduces MATLAB's
+// stable sort(...,'descend') (qsort itself is not stable).
 int compare_array(const void * a, const void * b) {
     struct array *na = (struct array *)a;
     struct array *nb = (struct array *)b;
-    int res;
     if(na->data < nb->data)
-        res = 1;
-    if(na->data == nb->data)
-        res = 0;
+        return 1;
     if(na->data > nb->data)
-        res = -1;
-    return res;
+        return -1;
+    return (na->ind > nb->ind) - (na->ind < nb->ind);
 }
 
 // Comparator for integer type, to sort in ascending order
@@ -39,8 +38,11 @@ void abs_array(const double y[], int size, struct array *abs_y) {
 // Computes autocorrelation of the input sequence, y, up to a maximum time lag
 double* SUB_acf(const double y[], const int size, double acf[], int lag) {
     int i;
-    for (i = 1; i <= lag; i++)
-        acf[i-1] = *CO_AutoCorr(y, size, &i, 1);
+    for (i = 1; i <= lag; i++) {
+        double *acf_i = CO_AutoCorr(y, size, &i, 1);
+        acf[i-1] = *acf_i;
+        free(acf_i);
+    }
     return acf;
 }
 
@@ -73,10 +75,12 @@ double DN_RemovePoints_absclose_05_ac2rat(const double y[], const int size) {
         yTransform[i] = y[sorted_ind[i]];
     
     int tau[1] = {2};
-    double acf_y = *CO_AutoCorr(y, size, tau, 1);
-    double acf_yTransform = *CO_AutoCorr(yTransform, keep_size, tau, 1);
-    double ac2rat = acf_yTransform/acf_y;
+    double *acf_y = CO_AutoCorr(y, size, tau, 1);
+    double *acf_yTransform = CO_AutoCorr(yTransform, keep_size, tau, 1);
+    double ac2rat = acf_yTransform[0]/acf_y[0];
 
+    free(acf_y);
+    free(acf_yTransform);
     free(abs_y);
     free(sorted_ind);
     free(yTransform);    

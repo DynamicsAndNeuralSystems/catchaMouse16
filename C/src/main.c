@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include <time.h>
 
 #include "CO_AutoCorr.h"
@@ -154,13 +155,18 @@ int main(int argc, char * argv[])
                 print_help(argv, "Can't open output file\n");
             }
             break;
+        default:
+            print_help(argv, "Too many arguments\n");
+            return 1;
     }
     
     array_size = 50;
     size = 0;
     y = malloc(array_size * sizeof *y);
 
-    while (fscanf(infile, "%lf", &value) != EOF) {
+    // stop at the first token that is not a number (fscanf returns 0 and does not consume
+    // it, so testing != EOF would loop forever)
+    while (fscanf(infile, "%lf", &value) == 1) {
         if (size == array_size) {
             y = realloc(y, 2 * array_size * sizeof *y);
             array_size *= 2;

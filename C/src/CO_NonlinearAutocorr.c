@@ -7,6 +7,8 @@
 double CO_NonlinearAutocorr(const double y[], const int size, const int taus[]) {
 
     int tmax = taus[2];
+    if (size <= tmax) // no products to average
+        return NAN;
     
     double *nlac = (double*) malloc((size) * sizeof(double));
 

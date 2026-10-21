@@ -18,6 +18,8 @@ double CO_TranslateShape_circle_35_pts(const double y[], const int size, const c
     int w = floor(r); // only consider a window radius w (these are the only
                     // points that could possibly be inside)
     int NN = size - 2*w; // number of admissible points
+    if (NN < 1)
+        return NAN;
 
     double *np = (double*) malloc(NN * sizeof(double));
     double difwin_sum;
@@ -44,6 +46,7 @@ double CO_TranslateShape_circle_35_pts(const double y[], const int size, const c
         printf("Error in CO_TranslateShape: Unknown statistics or maybe not implemented!\n");
         out = NAN;
     }
+    free(np);
     
     return out;
 }
