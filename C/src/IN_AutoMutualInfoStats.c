@@ -12,25 +12,27 @@ double IN_AutoMutualInfoStats_diff_20_gaussian_ami8(const double y[], const int 
         if (isnan(y[i]))
             return NAN;
 
-    // compute diff(y): length would be size-1 of original vector
-    double *y_diff = (double*) malloc( (size-1)*sizeof(double) );
-    diff(y, size, y_diff);
-    int diff_size = size-1;
-
     // maximum time delay
     int tau = 20;
-    
+    int diff_size = size-1;
+
     // don't go above half the signal length
     if (tau > ceil((double)diff_size/2))
         tau = ceil((double)diff_size/2);
-    
+
+    // hctsa only computes lags up to tau, so ami8 needs tau >= 8, i.e.
+    // diff_size >= 15 (N >= 16); otherwise ami8 is NaN
+    if (tau < 8)
+        return NAN;
+
+    // compute diff(y): length would be size-1 of original vector
+    double *y_diff = (double*) malloc(diff_size * sizeof(double));
+    diff(y, size, y_diff);
+
     // calculate auto mutual information
     double ac = autocorr_lag(y_diff, diff_size, 8);
     double ami8 = -0.5 * log(1 - ac*ac);
     free(y_diff);
 
-    if (tau >= 7)
-        return ami8;
-    else
-        return NAN;
+    return ami8;
 }
