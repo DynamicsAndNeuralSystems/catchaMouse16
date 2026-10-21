@@ -71,15 +71,18 @@ double quantile(const double y[], const int size, const double quant) {
     // out of range limit?
     q = 0.5 / size;
     if (quant < q) {
-        return tmp[0]; // min value
+        value = tmp[0]; // min value
     } else if (quant > (1 - q)) {
-        return tmp[size - 1]; // max value
+        value = tmp[size - 1]; // max value
+    } else {
+        quant_idx = size * quant - 0.5;
+        idx_left = (int)floor(quant_idx);
+        idx_right = (int)ceil(quant_idx);
+        if (idx_left == idx_right) // exactly on a sample (was 0/0 = NaN)
+            value = tmp[idx_left];
+        else
+            value = tmp[idx_left] + (quant_idx - idx_left) * (tmp[idx_right] - tmp[idx_left]) / (idx_right - idx_left);
     }
-    
-    quant_idx = size * quant - 0.5;
-    idx_left = (int)floor(quant_idx);
-    idx_right = (int)ceil(quant_idx);
-    value = tmp[idx_left] + (quant_idx - idx_left) * (tmp[idx_right] - tmp[idx_left]) / (idx_right - idx_left);
     free(tmp);
     return value;
 }
