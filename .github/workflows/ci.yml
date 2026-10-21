@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  c:
+    name: C (${{ matrix.os }}, ${{ matrix.cc }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cc: gcc
+          - os: ubuntu-latest
+            cc: clang
+          - os: macos-latest
+            cc: clang
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install GSL (Ubuntu)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgsl-dev
+      - name: Install GSL (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install gsl
+          # Homebrew's prefix is not on Apple clang's default search paths
+          echo "CPATH=$(brew --prefix gsl)/include" >> "$GITHUB_ENV"
+          echo "LIBRARY_PATH=$(brew --prefix gsl)/lib" >> "$GITHUB_ENV"
+      - name: Compiler version
+        run: ${{ matrix.cc }} --version
+      - name: Build
+        working-directory: C
+        run: make CC=${{ matrix.cc }}
+      - name: Test (values against hctsa v1.03)
+        working-directory: C
+        run: make test CC=${{ matrix.cc }}
+
+  python:
+    name: Python ${{ matrix.python-version }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python-version: "3.9"
+          - os: ubuntu-latest
+            python-version: "3.13"
+          - os: macos-latest
+            python-version: "3.13"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install GSL (Ubuntu)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgsl-dev
+      - name: Install GSL (macOS)
+        if: runner.os == 'macOS'
+        run: brew install gsl
+      - name: Install build and test dependencies
+        run: python -m pip install setuptools numpy pytest
+      - name: Build and install the extension
+        working-directory: Python
+        run: |
+          python setup_P3.py build
+          python setup_P3.py install
+      - name: Test (values against hctsa v1.03, input handling)
+        working-directory: Python
+        run: python -m pytest -v test_features.py

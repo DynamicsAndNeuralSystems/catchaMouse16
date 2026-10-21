@@ -1,4 +1,8 @@
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#include <limits.h>
+#include <math.h>
+#include <string.h>
 
 // include functions
 #include "../C/src/CO_AutoCorr.h"
@@ -21,6 +25,111 @@
 
 
 // ---------------------------------------------------------------------
+// ------------------------- Input conversion --------------------------
+// ---------------------------------------------------------------------
+
+// Is this buffer format a native double?
+static int is_double_format(const char *format)
+{
+    return format != NULL && (strcmp(format, "d") == 0 || strcmp(format, "@d") == 0 ||
+                              strcmp(format, "=d") == 0);
+}
+
+// Copy a one-dimensional sequence of real numbers (a list, tuple, NumPy
+// array, array.array, or any other iterable) into a new C array of doubles.
+// Returns 0 on success. On failure, returns -1 with a Python exception set
+// (TypeError for input that is not a one-dimensional sequence of numbers).
+static int to_double_array(PyObject *obj, double **out, int *n_out)
+{
+    double *y = NULL;
+    Py_ssize_t n;
+
+    // strings and bytes are sequences, but not of numbers
+    if (PyUnicode_Check(obj) || PyBytes_Check(obj) || PyByteArray_Check(obj)) {
+        PyErr_Format(PyExc_TypeError, "expected a sequence of numbers, not %.200s",
+                     Py_TYPE(obj)->tp_name);
+        return -1;
+    }
+
+    // objects that expose their data as a buffer (e.g., NumPy arrays)
+    if (PyObject_CheckBuffer(obj)) {
+        Py_buffer view;
+        if (PyObject_GetBuffer(obj, &view, PyBUF_STRIDES | PyBUF_FORMAT) == 0) {
+            if (view.ndim != 1) {
+                int ndim = view.ndim;
+                PyBuffer_Release(&view);
+                PyErr_Format(PyExc_TypeError,
+                             "expected a one-dimensional sequence of numbers, "
+                             "got an array with %d dimensions", ndim);
+                return -1;
+            }
+            if (is_double_format(view.format) && view.itemsize == sizeof(double)) {
+                // copy the doubles directly
+                n = view.shape[0];
+                if (n > INT_MAX) {
+                    PyBuffer_Release(&view);
+                    PyErr_SetString(PyExc_OverflowError, "time series is too long");
+                    return -1;
+                }
+                y = PyMem_Malloc((n > 0 ? n : 1) * sizeof *y);
+                if (y == NULL) {
+                    PyBuffer_Release(&view);
+                    PyErr_NoMemory();
+                    return -1;
+                }
+                for (Py_ssize_t i = 0; i < n; i++)
+                    memcpy(&y[i], (const char *)view.buf + i * view.strides[0], sizeof(double));
+                PyBuffer_Release(&view);
+                *out = y;
+                *n_out = (int)n;
+                return 0;
+            }
+            // other element types (e.g., integer or float32 arrays) are
+            // converted element by element below
+            PyBuffer_Release(&view);
+        } else {
+            PyErr_Clear();
+        }
+    }
+
+    // any other sequence or iterable: convert each element to a double
+    PyObject *seq = PySequence_Fast(obj, "expected a sequence of numbers");
+    if (seq == NULL)
+        return -1;
+    n = PySequence_Fast_GET_SIZE(seq);
+    if (n > INT_MAX) {
+        Py_DECREF(seq);
+        PyErr_SetString(PyExc_OverflowError, "time series is too long");
+        return -1;
+    }
+    y = PyMem_Malloc((n > 0 ? n : 1) * sizeof *y);
+    if (y == NULL) {
+        Py_DECREF(seq);
+        PyErr_NoMemory();
+        return -1;
+    }
+    PyObject **items = PySequence_Fast_ITEMS(seq);
+    for (Py_ssize_t i = 0; i < n; i++) {
+        y[i] = PyFloat_AsDouble(items[i]);
+        if (y[i] == -1.0 && PyErr_Occurred()) {
+            if (PyErr_ExceptionMatches(PyExc_TypeError)) {
+                PyErr_Format(PyExc_TypeError,
+                             "expected a sequence of numbers, but element %zd is %.200s",
+                             i, Py_TYPE(items[i])->tp_name);
+            }
+            PyMem_Free(y);
+            Py_DECREF(seq);
+            return -1;
+        }
+    }
+    Py_DECREF(seq);
+    *out = y;
+    *n_out = (int)n;
+    return 0;
+}
+
+
+// ---------------------------------------------------------------------
 // -------------------- Main wrapper function --------------------------
 // ---------------------------------------------------------------------
 
@@ -28,158 +137,41 @@
 
 static PyObject * python_wrapper_double(PyObject * args, double (*f) (const double*, const int), int normalize)
 {
-
-    PyObject * py_tuple;
+    PyObject * input;
+    double * y;
     int n;
-    double * c_array;
-
-    // parse arguments
-    if(!PyArg_ParseTuple(args, "O", &py_tuple)){
-       return NULL;
-    }
-
-    if (PyList_Check(py_tuple)){
-
-        n = (int) PyList_Size(py_tuple);
-
-        // allocate space for input array (C data format)
-        c_array= malloc(n*sizeof(double));
-
-        // write input array to c array
-        int i;
-        for (i=0; i<n; i++) {
-            c_array[i] = (double) PyFloat_AsDouble(PyList_GetItem(py_tuple, i));
-        }
-
-    }
-    else
-    {
-        if (PyTuple_Check(py_tuple)){
-
-            n = (int) PyTuple_Size(py_tuple);
-
-            // allocate space for input array (C data format)
-            c_array= malloc(n*sizeof(double));
-
-            // write input array to c array
-            int i;
-            for (i=0; i<n; i++) {
-                c_array[i] = (double) PyFloat_AsDouble(PyTuple_GetItem(py_tuple, i));
-            }
-
-        }
-        else{
-            return NULL;
-        }
-    }
-
-    // result variables
     double result;
-    PyObject * ret;
-
-    // copy input vector (just in case it is altered by the function)
-    double * copy = malloc(n * sizeof * copy);    
-    memcpy(copy, c_array, n * sizeof * copy);
-
-    if (normalize){
-        
-        double * y_zscored = malloc(n * sizeof * y_zscored);
-        zscore_norm2(copy, n, y_zscored);
-
-        result = f(y_zscored, n);
-
-        free(y_zscored);
-    } 
-    else {
-        result = f(copy, n);
-    }   
-
-    free(c_array);
-    free(copy);
-
-    // build the resulting string into a Python object.
-    ret = Py_BuildValue("d", result);
-
-    return ret;
-};
-
-static PyObject * python_wrapper_int(PyObject * args, int (*f) (const double*, const int), int normalize)
-{
-
-    PyObject * py_tuple;
-    int n;
-    double * c_array;
 
     // parse arguments
-    if(!PyArg_ParseTuple(args, "O", &py_tuple)){
-       return NULL;
+    if (!PyArg_ParseTuple(args, "O", &input))
+        return NULL;
+    if (to_double_array(input, &y, &n) != 0)
+        return NULL;
+
+    // an empty series has no features
+    if (n == 0) {
+        PyMem_Free(y);
+        return PyFloat_FromDouble(NAN);
     }
 
-    if (PyList_Check(py_tuple)){
-
-        n = (int) PyList_Size(py_tuple);
-
-        // allocate space for input array (C data format)
-        c_array= malloc(n*sizeof(double));
-
-        // write input array to c array
-        int i;
-        for (i=0; i<n; i++) {
-            c_array[i] = (double) PyFloat_AsDouble(PyList_GetItem(py_tuple, i));
+    if (normalize) {
+        double * y_zscored = PyMem_Malloc(n * sizeof * y_zscored);
+        if (y_zscored == NULL) {
+            PyMem_Free(y);
+            return PyErr_NoMemory();
         }
-
-    }
-    else
-    {
-        if (PyTuple_Check(py_tuple)){
-
-            n = (int) PyTuple_Size(py_tuple);
-
-            // allocate space for input array (C data format)
-            c_array= malloc(n*sizeof(double));
-
-            // write input array to c array
-            int i;
-            for (i=0; i<n; i++) {
-                c_array[i] = (double) PyFloat_AsDouble(PyTuple_GetItem(py_tuple, i));
-            }
-
-        }
-        else{
-            return NULL;
-        }
-    }
-
-    // result variables
-    int result;
-    PyObject * ret;
-
-    // copy input vector (just in case it is altered by the function)
-    double * copy = malloc(n * sizeof * copy);    
-    memcpy(copy, c_array, n * sizeof * copy);
-
-    if (normalize){
-        
-        double * y_zscored = malloc(n * sizeof * y_zscored);
-        zscore_norm2(copy, n, y_zscored);
-
+        zscore_norm2(y, n, y_zscored);
         result = f(y_zscored, n);
-
-        free(y_zscored);
-    } 
+        PyMem_Free(y_zscored);
+    }
     else {
-        result = f(copy, n);
-    }   
+        result = f(y, n);
+    }
 
-    free(copy);
-    free(c_array);
+    PyMem_Free(y);
 
-    // build the resulting string into a Python object.
-    ret = Py_BuildValue("n", result);
-
-    return ret;
-};
-
+    return PyFloat_FromDouble(result);
+}
 
 // ---------------------------------------------------------------------
 // ----------------------- Functions to wrap ---------------------------

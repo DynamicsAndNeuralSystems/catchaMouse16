@@ -8,7 +8,7 @@ void M_wrapper_double( int nlhs, mxArray *plhs[],
     double (*f) (const double*, const int), int normalize )
      
 { 
-    double *inMatrix;       /* 1xN input matrix */
+    double *inMatrix;       /* input vector (1xN or Nx1) */
     int nrows;
     double *outMatrix; /* output matrix */
     
@@ -26,18 +26,26 @@ void M_wrapper_double( int nlhs, mxArray *plhs[],
         mexErrMsgIdAndTxt("catchaMouse16:notDouble",
             "Input vector must be type double.");
     }
-    if(mxGetN(prhs[0]) != 1) {
-        mexErrMsgIdAndTxt("catchaMouse16:notColumnVector",
-                          "Input must be a column vector.");
+    // accept a row or a column vector (the data are contiguous either way)
+    if(!mxIsEmpty(prhs[0]) && (mxGetNumberOfDimensions(prhs[0]) != 2 ||
+       (mxGetM(prhs[0]) != 1 && mxGetN(prhs[0]) != 1))) {
+        mexErrMsgIdAndTxt("catchaMouse16:notVector",
+                          "Input must be a vector.");
     }
     
     // get input
     inMatrix = mxGetPr(prhs[0]);
-    nrows = mxGetM(prhs[0]);
+    nrows = (int) mxGetNumberOfElements(prhs[0]);
     
     // set output
     plhs[0] = mxCreateDoubleMatrix(1,1,mxREAL);
     outMatrix = mxGetPr(plhs[0]);
+    
+    // an empty series has no features
+    if (nrows == 0) {
+        outMatrix[0] = mxGetNaN();
+        return;
+    }
     
     // calculate result
     if (normalize){
@@ -62,7 +70,7 @@ void M_wrapper_int( int nlhs, mxArray *plhs[],
     int (*f) (const double*, const int), int normalize )
      
 { 
-    double *inMatrix;       /* 1xN input matrix */
+    double *inMatrix;       /* input vector (1xN or Nx1) */
     int nrows;
     int *outMatrix; /* output matrix */
     
@@ -80,14 +88,16 @@ void M_wrapper_int( int nlhs, mxArray *plhs[],
         mexErrMsgIdAndTxt("catchaMouse16:notDouble",
             "Input vector must be type double.");
     }
-    if(mxGetN(prhs[0]) != 1) {
-        mexErrMsgIdAndTxt("catchaMouse16:notColumnVector",
-                          "Input must be a column vector.");
+    // accept a row or a column vector (the data are contiguous either way)
+    if(!mxIsEmpty(prhs[0]) && (mxGetNumberOfDimensions(prhs[0]) != 2 ||
+       (mxGetM(prhs[0]) != 1 && mxGetN(prhs[0]) != 1))) {
+        mexErrMsgIdAndTxt("catchaMouse16:notVector",
+                          "Input must be a vector.");
     }
     
     // get input
     inMatrix = mxGetPr(prhs[0]);
-    nrows = mxGetM(prhs[0]);
+    nrows = (int) mxGetNumberOfElements(prhs[0]);
     
     // set output
     plhs[0] = mxCreateNumericMatrix(1,1, mxINT32_CLASS, mxREAL);

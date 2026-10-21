@@ -1,16 +1,38 @@
-from distutils.core import setup, Extension
 import os
+import shlex
+import subprocess
+
+from setuptools import setup, Extension
 
 sourceDir = "../C/src/"
 
-sourceFileList = [sourceDir+file for file in os.listdir(sourceDir) if file.endswith(".c") and not 'main' in file]; #  and not (file == "sampen.c" or file == "run_features.c")];
+sourceFileList = [sourceDir+file for file in os.listdir(sourceDir) if file.endswith(".c") and not 'main' in file]
 
-# the c++ extension module
-extension_mod = Extension("catchaMouse16_C", 
-	sources=["catchaMouse16_wrap_P3.c"] + sourceFileList, 
-	include_dirs=[sourceDir], libraries=["gsl", "gslcblas"])
 
-# setup(name = "catch22", ext_modules=[extension_mod], packages=['catch22'])
+def gsl_flags():
+    """Find GSL's include and library directories with gsl-config, if it is on the PATH.
+
+    Otherwise rely on the compiler's default search paths (and CFLAGS/LDFLAGS).
+    """
+    try:
+        cflags = subprocess.check_output(["gsl-config", "--cflags"], text=True)
+        libs = subprocess.check_output(["gsl-config", "--libs"], text=True)
+    except (OSError, subprocess.CalledProcessError):
+        return [], []
+    include_dirs = [flag[2:] for flag in shlex.split(cflags) if flag.startswith("-I")]
+    library_dirs = [flag[2:] for flag in shlex.split(libs) if flag.startswith("-L")]
+    return include_dirs, library_dirs
+
+
+gslIncludeDirs, gslLibraryDirs = gsl_flags()
+
+# the C extension module
+extension_mod = Extension("catchaMouse16_C",
+	sources=["catchaMouse16_wrap_P3.c"] + sourceFileList,
+	include_dirs=[sourceDir] + gslIncludeDirs,
+	library_dirs=gslLibraryDirs,
+	extra_link_args=["-Wl,-rpath," + d for d in gslLibraryDirs],
+	libraries=["gsl", "gslcblas"])
 
 setup(
 name="catchaMouse16",

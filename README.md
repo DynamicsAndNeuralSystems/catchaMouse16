@@ -24,39 +24,38 @@ Then build for your language of choice.
 |---|---|---|
 | C | [`C/`](C) | run `make` inside `C/` |
 | Python | [`Python/`](Python) | `python3 setup_P3.py build` then `python3 setup_P3.py install` |
-| MATLAB | [`Matlab/`](Matlab) | run `mexAll` inside `Matlab/` (it looks for GSL in `/usr/local`; edit the paths in `mexAll.m` if GSL is installed elsewhere, e.g., `/opt/homebrew` on Apple silicon) |
+| MATLAB | [`Matlab/`](Matlab) | run `mexAll` inside `Matlab/` (it finds GSL with `gsl-config` or in `/opt/homebrew`, `/usr/local` or `/usr`; for GSL elsewhere, run `mexAll('<GSL install prefix>')`) |
 | Julia | [CatchaMouse16.jl](https://github.com/brendanjohnharris/CatchaMouse16.jl) | `] add CatchaMouse16` (pre-built binaries for all platforms) |
 
-The Python build uses `distutils` (provided by setuptools on recent Python versions).
+The Python build needs setuptools (`pip install setuptools`).
 Some features return `NaN` (and print an error message) for very short series; for example, `ST_LocalExtrema_n100_diffmaxabsmin` returns `NaN` for series of 100 and 150 samples.
 The mouse fMRI series in the paper have 900 samples.
-A Python 2 build is also available through `setup.py`; see the [documentation](https://time-series-features.gitbook.io/time-series-analysis-tools/feature-subsets/catchamouse16) for details.
 
 ## Quick start
 
-In Python (the features take a list of floats; a NumPy array must be converted with `.tolist()`):
+In Python (the features take a list, tuple or NumPy array of numbers):
 
 ```python
 import numpy as np
 import catchaMouse16
 
-x = np.random.randn(900).tolist()  # your time series
+x = np.random.randn(900)  # your time series
 print(catchaMouse16.SC_FluctAnal_2_dfa_50_2_logi_r2_se2(x))  # a single feature
 out = catchaMouse16.catchaMouse16_all(x)  # a dict with 'names' and 'values'
 ```
 
-Run `python3 test_features.py` inside `Python/` to compute all 16 features for the example series [`test_ts.csv`](test_ts.csv).
+Run `python3 test_features.py` inside `Python/` to check all 16 features against reference values for the example series [`test_ts.csv`](test_ts.csv).
 
 In MATLAB (after running `mexAll`):
 
 ```matlab
-x = randn(900, 1);                                 % a column vector
-f = catchaMouse16_AC_nl_035(x);                    % a single feature (needs a column vector)
-[featureValues, featureNames] = catchaMouse16_all(x');  % all 16 features (needs a row vector)
+x = randn(900, 1);                                % a row or column vector
+f = catchaMouse16_AC_nl_035(x);                   % a single feature
+[featureValues, featureNames] = catchaMouse16_all(x);  % all 16 features
 ```
 
 Individual features are available as `catchaMouse16_{feature}`.
-Note that `catchaMouse16_all` currently requires a row vector, whereas the individual feature functions require a column vector.
+Run `test_catchaMouse16` to check the compiled features against reference values.
 
 From the command line (after running `make` inside `C/`), compute all features for the time series in `<infile>`:
 
