@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdlib.h>
 
 #include "IN_AutoMutualInfoStats.h"
 #include "CO_AutoCorr.h"
@@ -26,6 +27,7 @@ double IN_AutoMutualInfoStats_diff_20_gaussian_ami8(const double y[], const int 
     // calculate auto mutual information
     double ac = autocorr_lag(y_diff, diff_size, 8);
     double ami8 = -0.5 * log(1 - ac*ac);
+    free(y_diff);
 
     if (tau >= 7)
         return ami8;

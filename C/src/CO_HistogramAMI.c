@@ -21,6 +21,10 @@ double CO_HistogramAMI_even(const double y[], const int size, const int numBins,
     //int tau = 1;
     //int numBins = 10;
     
+    // need at least one pair of values tau apart
+    if (size <= tau)
+        return NAN;
+    
     double * y1 = malloc((size-tau) * sizeof(double));
     double * y2 = malloc((size-tau) * sizeof(double));
     
@@ -146,6 +150,10 @@ double CO_HistogramAMI_even(const double y[], const int size, const int numBins,
     free(y1);
     free(y2);
     free(bins12);
+    free(binEdges);
+    free(binEdges12);
+    free(pi);
+    free(pj);
     
     return ami;
 }

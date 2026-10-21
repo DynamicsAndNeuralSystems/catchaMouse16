@@ -13,12 +13,12 @@
 double dofit(const gsl_multifit_robust_type *T, const gsl_matrix *X, const gsl_vector *y,
       gsl_vector *c, gsl_matrix *cov, int n)
 {    
-    int s;
     gsl_set_error_handler_off();
 
     gsl_multifit_robust_workspace * work = gsl_multifit_robust_alloc(T, X->size1, X->size2);
 
-    s = gsl_multifit_robust(X, y, c, cov, work);
+    gsl_multifit_robust(X, y, c, cov, work);
+    gsl_multifit_robust_free(work);
     
     //gsl_multifit_robust_stats stat = gsl_multifit_robust_statistics(work);
     return sqrt(gsl_matrix_get(cov, 1, 1)); // standard error of mean
@@ -106,6 +106,7 @@ double SC_FluctAnal_2_dfa_50_2_logi_r2_se2(const double y[], const int size) {
         //if (strcmp(how, "dfa") == 0)
         F[i] = sqrt(F[i] / (nBuffer * tau[i]));        
         free(buffer);
+        free(coeff);
     }
     
     double * logtt = malloc(nTau * sizeof * logtt);

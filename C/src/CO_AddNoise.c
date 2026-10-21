@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include <gsl/gsl_randist.h>
 #include <sys/time.h>
 
@@ -79,28 +80,28 @@ double CO_AddNoise_1_even_10_ami_at_10(const double y[], const int size) {
     //printf("noise is:\n");
     for (i = 0; i < size; i++)
         noise[i] = gsl_ran_gaussian_ziggurat(rr, mu);
+    gsl_rng_free(rr);
 
     int numRepeats = 50;
     double *noiseRange = (double*) malloc(numRepeats * sizeof(double));
     linspace(0, 3, numRepeats, noiseRange);
-    
 
     double *amis = (double*) malloc(numRepeats * sizeof(double));
     memset(amis, 0, numRepeats * sizeof(double));
 
+    double out = 0;
     for (i = 0; i < numRepeats; i++) {
         for (j = 0; j < size; j++)
             yn[j] = y[j] + (noiseRange[i] * noise[j]);
 
         amis[i] = CO_HistogramAMI_even_10_1(yn, size);
-        if (isnan(amis[i])) {
-            printf("Error computing AMI: Time series too short (?)");
-            return NAN;
+        if (isnan(amis[i])) { // time series too short
+            out = NAN;
+            break;
         }
     }
-    
-    double out = 0;
-    for (i = 0; i < numRepeats; i++) {
+
+    for (i = 0; !isnan(out) && i < numRepeats; i++) {
         if (noiseRange[i] >= 1) { // noiseLevel = 1
             out = amis[i];
             break;

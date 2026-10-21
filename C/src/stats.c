@@ -176,7 +176,6 @@ int linreg(const int n, const double x[], const double y[], double* m, double* b
     double   sumx2 = 0.0;                     /* sum of x**2  */
     double   sumxy = 0.0;                     /* sum of x * y */
     double   sumy = 0.0;                      /* sum of y     */
-    double   sumy2 = 0.0;                     /* sum of y**2  */
     
     /*
     for (int i = 0; i < n; i++)
@@ -190,7 +189,6 @@ int linreg(const int n, const double x[], const double y[], double* m, double* b
         sumx2 += x[i] * x[i];
         sumxy += x[i] * y[i];
         sumy  += y[i];
-        sumy2 += y[i] * y[i];
     }
     
     double denom = (n * sumx2 - sumx * sumx);

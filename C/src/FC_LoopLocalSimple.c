@@ -5,6 +5,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <limits.h>
 #include <math.h>
 
 double FC_LocalSimple(const double y[], const int size, int trainLength) {
@@ -15,10 +17,8 @@ double FC_LocalSimple(const double y[], const int size, int trainLength) {
 
     // range over which to evaluate
     int evalr_len = size - lp; //lp+1:N
-    if (evalr_len <= 0) {
-        printf("FC_LocalSimple: Time Series too short for forecasting\n");
+    if (evalr_len <= 0) // time series too short for forecasting
         return NAN;
-    }
     int *evalr = (int*) malloc(evalr_len * sizeof(int));
     for (i = 0; i < evalr_len; i++)
         evalr[i] = i + lp + 1;

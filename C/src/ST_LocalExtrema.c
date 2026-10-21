@@ -3,11 +3,8 @@
 double ST_LocalExtrema_n100_diffmaxabsmin(const double y[], const int size) {
     
     int wl = floor(size/100); // window length, for (about) 100 windows
-    if (wl > size  || wl <= 1) {
-        printf("Error in ST_LocalExtrema: window length less than 1 or greater than ts \n");
-        fprintf(stderr, "Couldn't divide the time series into multiple windows...\n");
+    if (wl > size  || wl <= 1) // too short to divide into windows
         return NAN;
-    }
 
     // Dividing the ts into non-overlapping windows of length wl. As in hctsa
     // (buffer(y,wl), then removing the zero-padded last window), this gives

@@ -14,6 +14,9 @@ double PH_Walker_momentum_5_w_momentumzcross(const double y[], const int size) {
         if (isnan(y[i]))
             return NAN;
     
+    if (size < 2) // the walker needs two starting values
+        return NAN;
+    
     double *w = (double*) malloc(size * sizeof(double));
     double m = 5;
 
