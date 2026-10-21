@@ -131,7 +131,7 @@ void run_features(double y[], int size, FILE * outfile)
 int main(int argc, char * argv[])
 {
     
-    FILE * infile, * outfile;
+    FILE * infile = NULL, * outfile = NULL; // print_help() exits, but the compiler can't tell
     int array_size;
     double * y;
     int size;

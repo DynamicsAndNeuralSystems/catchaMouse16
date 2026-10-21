@@ -9,7 +9,8 @@
 // by ~1%) cannot match hctsa to high precision, so only their NaN behavior is
 // checked here.
 //
-// Series in tests/data (seeded NumPy draws, written with %.17g):
+// Series in tests/data (seeded NumPy draws, written with %.17g; some checks
+// use only the first few points):
 //   wn299.txt, wn150.txt: white noise; rw437.txt: random walk;
 //   int1000.txt: integers 0-4 (many tied values).
 //
@@ -35,8 +36,9 @@
 
 static int n_fail = 0, n_pass = 0;
 
-// Read whitespace-separated values from a file, then z-score them
-static double *read_zscored(const char *path, int *size)
+// Read whitespace-separated values from a file (at most nmax of them, if
+// nmax > 0)
+static double *read_values(const char *path, int nmax, int *size)
 {
     FILE *f = fopen(path, "r");
     if (f == NULL) {
@@ -45,7 +47,7 @@ static double *read_zscored(const char *path, int *size)
     }
     int capacity = 1024, n = 0;
     double value, *y = malloc(capacity * sizeof *y);
-    while (fscanf(f, "%lf", &value) == 1) {
+    while ((nmax <= 0 || n < nmax) && fscanf(f, "%lf", &value) == 1) {
         if (n == capacity) {
             capacity *= 2;
             y = realloc(y, capacity * sizeof *y);
@@ -53,11 +55,25 @@ static double *read_zscored(const char *path, int *size)
         y[n++] = value;
     }
     fclose(f);
+    *size = n;
+    return y;
+}
+
+// ... and z-score them
+static double *read_zscored_n(const char *path, int nmax, int *size)
+{
+    int n;
+    double *y = read_values(path, nmax, &n);
     double *y_z = malloc(n * sizeof *y_z);
     zscore_norm2(y, n, y_z);
     free(y);
     *size = n;
     return y_z;
+}
+
+static double *read_zscored(const char *path, int *size)
+{
+    return read_zscored_n(path, 0, size);
 }
 
 // Check a feature value against a reference (NAN means NaN is expected)
@@ -143,6 +159,21 @@ int main(int argc, char *argv[])
     y = read_zscored(join(dir, "wn150.txt"), &N);
     check("wn150", "SC_FluctAnal_2_dfa_50_2_logi_r2_se2",
           SC_FluctAnal_2_dfa_50_2_logi_r2_se2(y, N), NAN);
+    free(y);
+
+    // --- IN_AutoMutualInfoStats: hctsa computes ami8 only if
+    // ceil((N-1)/2) >= 8, i.e. N >= 16 (first N points of wn150, z-scored) ---
+    y = read_zscored_n(join(dir, "wn150.txt"), 14, &N);
+    check("wn150[1:14]", "IN_AutoMutualInfoStats_diff_20_gaussian_ami8",
+          IN_AutoMutualInfoStats_diff_20_gaussian_ami8(y, N), NAN);
+    free(y);
+    y = read_zscored_n(join(dir, "wn150.txt"), 15, &N);
+    check("wn150[1:15]", "IN_AutoMutualInfoStats_diff_20_gaussian_ami8",
+          IN_AutoMutualInfoStats_diff_20_gaussian_ami8(y, N), NAN);
+    free(y);
+    y = read_zscored_n(join(dir, "wn150.txt"), 16, &N);
+    check("wn150[1:16]", "IN_AutoMutualInfoStats_diff_20_gaussian_ami8",
+          IN_AutoMutualInfoStats_diff_20_gaussian_ami8(y, N), 0.8773669729048541);
     free(y);
 
     // --- Short series: NaN rather than a number or a crash ---

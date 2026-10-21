@@ -1,6 +1,10 @@
 #ifndef CO_AUTOCORR_H
 #define CO_AUTOCORR_H
 
+// cplx is defined in several headers; define it once (repeating a typedef
+// is not allowed in C99)
+#ifndef CM16_CPLX_DEFINED
+#define CM16_CPLX_DEFINED
 #if __cplusplus
 #   include <complex>
 typedef std::complex< double > cplx;
@@ -10,6 +14,7 @@ typedef std::complex< double > cplx;
 typedef double complex cplx;
 #elif defined(_MSC_VER)
 typedef _Dcomplex cplx;
+#endif
 #endif
 #endif
 

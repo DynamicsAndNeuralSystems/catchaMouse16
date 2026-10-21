@@ -68,7 +68,9 @@ double CO_AddNoise_1_even_10_ami_at_10(const double y[], const int size) {
     gsl_rng * rr;
     double mu = 1.0;
 
-    gsl_rng_env_setup();
+    // MT19937 with a fixed seed of 0. (No gsl_rng_env_setup(): the type and
+    // seed are set explicitly, and it would print GSL_RNG_TYPE/GSL_RNG_SEED
+    // to stderr from library code when those are set.)
     rr = gsl_rng_alloc (gsl_rng_mt19937);
     //struct timeval tv; // Seed generation based on time
     //gettimeofday(&tv,0);

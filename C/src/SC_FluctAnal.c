@@ -7,21 +7,39 @@
 #include "CO_AutoCorr.h"
 #include "SC_FluctAnal.h"
 
+#include <gsl/gsl_errno.h>
 #include <gsl/gsl_multifit.h>
 #include <gsl/gsl_randist.h>
 
-double dofit(const gsl_multifit_robust_type *T, const gsl_matrix *X, const gsl_vector *y,
-      gsl_vector *c, gsl_matrix *cov, int n)
-{    
+// Robust (bisquare) linear fit; returns the standard error of the gradient,
+// or NaN if the fit fails.
+//
+// hctsa v1.03 uses MATLAB's robustfit here. GSL's robust standard error is
+// computed with different weighting and degrees-of-freedom conventions, so
+// this value differs from hctsa's r2_se2 by about 0.03-1.6% (more, up to
+// ~6% in tests, when the iterations do not converge; see below).
+//
+// If the reweighting iterations do not converge, GSL returns GSL_EMAXITER
+// (after 100 iterations) but still computes the coefficients and covariance.
+// MATLAB's robustfit stops at 50 iterations with only a warning and returns
+// its estimates, so hctsa gives a value in this case too; it is kept here
+// rather than returned as NaN. Any other error status means the fit was not
+// computed, and gives NaN.
+static double dofit(const gsl_multifit_robust_type *T, const gsl_matrix *X, const gsl_vector *y,
+      gsl_vector *c, gsl_matrix *cov)
+{
     gsl_set_error_handler_off();
 
     gsl_multifit_robust_workspace * work = gsl_multifit_robust_alloc(T, X->size1, X->size2);
+    if (work == NULL)
+        return NAN;
 
-    gsl_multifit_robust(X, y, c, cov, work);
+    int status = gsl_multifit_robust(X, y, c, cov, work);
     gsl_multifit_robust_free(work);
-    
-    //gsl_multifit_robust_stats stat = gsl_multifit_robust_statistics(work);
-    return sqrt(gsl_matrix_get(cov, 1, 1)); // standard error of mean
+
+    if (status != GSL_SUCCESS && status != GSL_EMAXITER)
+        return NAN;
+    return sqrt(gsl_matrix_get(cov, 1, 1)); // standard error of the gradient
 }
 
 // --- taustep = 50, k = 2 ---
@@ -191,7 +209,7 @@ double SC_FluctAnal_2_dfa_50_2_logi_r2_se2(const double y[], const int size) {
         gsl_matrix_set(X, i, 0, 1);
         gsl_matrix_set(X, i, 1, xi);
     }
-    double out = dofit(gsl_multifit_robust_bisquare, X, r2_logFF, c, cov, r2_len);
+    double out = dofit(gsl_multifit_robust_bisquare, X, r2_logFF, c, cov);
 
     gsl_matrix_free(X);
     gsl_vector_free(c);
