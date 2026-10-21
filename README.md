@@ -148,6 +148,11 @@ Two features cannot match it exactly:
   Changing the random seed alone changes this feature by about 10–15% (coefficient of variation at N = 150–1000), and values differed from _hctsa_'s by a similar amount (13–26% for N ≥ 250).
 - `SC_FluctAnal_2_dfa_50_2_logi_r2_se2` computes the standard error of a robust linear fit with GSL's robust regression, which differs from MATLAB's `robustfit` by about 0.03–1.6%.
   Its `NaN` cases match _hctsa_.
+  When the robust fit does not converge (about 0.5% of random series), both return a value, and the difference can reach about 6%.
+
+Discrete-valued (e.g., integer) series can also differ from _hctsa_ in two features.
+In `CO_HistogramAMI_even_2_3`, a data value can fall exactly on the middle bin edge, so its bin depends on the last bit of the z-scored value, and the C z-scoring is not bitwise identical to MATLAB's `zscore`.
+`ST_LocalExtrema_n100_diffmaxabsmin` keeps a full final window whose last z-scored sample is exactly 0, which _hctsa_ v1.03 discards as a side effect of its zero-padding check.
 
 Two features also return a value for some very short series where _hctsa_ v1.03 returns `NaN`.
 `FC_LoopLocalSimple_mean_stderr_chn` returns a value at N = 12–14; _hctsa_ returns `NaN` there only because a different output of the same operation fails to compute.
