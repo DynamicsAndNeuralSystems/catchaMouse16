@@ -44,22 +44,23 @@ double SY_SlidingWindow(const double y[], const int size, const char windowStat[
         }
     }
     else {
-        printf("Error in SY_SlidingWindow: Unknown or Other Statistics!\n");
-        return NAN;
+        free(qs);
+        return NAN; // unknown window statistic
     }
     
     // NAN check
     for (i = 0; i < numSteps; i++)
-        if (isnan(qs[i]))
+        if (isnan(qs[i])) {
+            free(qs);
             return NAN;
+        }
 
     double out;
     if (!strcmp(acrossWinStat, "std")) {
         out = stddev(qs, numSteps) / stddev(y, size);
     }
     else {
-        printf("Error in SY_SlidingWindow: Unknown or Other Statistics!\n");
-        return NAN;
+        out = NAN; // unknown across-window statistic
     }
 
     free(qs);
