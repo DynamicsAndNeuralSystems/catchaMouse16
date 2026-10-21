@@ -12,7 +12,8 @@
 // Series in tests/data (seeded NumPy draws, written with %.17g; some checks
 // use only the first few points):
 //   wn299.txt, wn150.txt: white noise; rw437.txt: random walk;
-//   int1000.txt: integers 0-4 (many tied values).
+//   int1000.txt: integers 0-4 (many tied values);
+//   int437_z.txt: integers 0-4, z-scored by MATLAB (read without z-scoring).
 //
 // Usage: run_tests <data directory> <path to test_ts.csv>
 
@@ -153,6 +154,17 @@ int main(int argc, char *argv[])
     y = read_zscored(join(dir, "int1000.txt"), &N);
     check("int1000", "DN_RemovePoints_absclose_05_ac2rat",
           DN_RemovePoints_absclose_05_ac2rat(y, N), 0.21171499248284334);
+    free(y);
+
+    // --- CO_HistogramAMI on discrete data: values that fall exactly on a bin
+    // edge need the edges computed as MATLAB's linspace does. int437_z.txt is
+    // already z-scored (by MATLAB's zscore) and is used as is: for integer
+    // data the middle value lies exactly on the middle edge of the 2-bin
+    // histogram, so its bin also depends on the last bit of the z-scored
+    // values, and C's z-scoring does not reproduce MATLAB's bit for bit ---
+    y = read_values(join(dir, "int437_z.txt"), 0, &N);
+    check("int437_z", "CO_HistogramAMI_even_2_3", CO_HistogramAMI_even_2_3(y, N), 0.0028370214186750134);
+    check("int437_z", "CO_HistogramAMI_even_10_3", CO_HistogramAMI_even_10_3(y, N), 0.022794420007831145);
     free(y);
 
     // --- SC_FluctAnal: fewer than 8 points in r2 -> NaN (as in hctsa) ---
