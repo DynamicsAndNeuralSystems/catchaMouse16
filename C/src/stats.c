@@ -155,6 +155,7 @@ void zscore_norm2(const double a[], const int size, double b[]) {
 }
 
 double moment(const double a[], const int size, const int start, const int end, const int r) {
+    (void)size; // unused: the window is a[start..end]
     int win_size = end - start + 1;
     a += start;
     double m = mean(a, win_size);
