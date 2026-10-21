@@ -21,7 +21,14 @@ def catchaMouse16_all(data):
 	'CO_TranslateShape_circle_35_pts_std'
 	]	
 
-	data = list(data)
+	# The feature functions accept any sequence of numbers (list, tuple,
+	# NumPy array, ...). Read a one-shot iterator (e.g., a generator) into a
+	# list, since each of the 16 features reads the data.
+	try:
+		if iter(data) is data:
+			data = list(data)
+	except TypeError:
+		pass  # not iterable: the feature functions raise a TypeError
 
 	featureOut = []
 	for f in features:
