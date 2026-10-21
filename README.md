@@ -102,6 +102,57 @@ All _catchaMouse16_ features are computed on the _z_-scored time series, so they
 The list of names is also in [`featureList.txt`](featureList.txt).
 The [documentation](https://time-series-features.gitbook.io/time-series-analysis-tools/feature-subsets/catchamouse16) gives the interpretable name used in the paper for each feature.
 
+## Minimum time-series length
+
+Each feature returns `NaN` when the series is too short to compute it.
+The table gives the shortest length N at which each feature returns a value.
+These lengths were measured with the C code on white noise, AR(1) (φ = 0.9) and random-walk series (50 draws of each at every N from 1 to 1000), and agree with the length checks in [`C/src`](C/src).
+A feature that returns a value at these lengths is not necessarily meaningful there.
+
+| Feature name | Minimum N |
+|---|---|
+| `AC_nl_035` | 6 |
+| `AC_nl_036` | 7 |
+| `AC_nl_112` | 3 |
+| `CO_HistogramAMI_even_10_3` | 4 |
+| `CO_HistogramAMI_even_2_3` | 4 |
+| `IN_AutoMutualInfoStats_diff_20_gaussian_ami8` | 14 |
+| `SC_FluctAnal_2_dfa_50_2_logi_r2_se2` | 34 (data-dependent above this; see below) |
+| `CO_AddNoise_1_even_10_ami_at_10` | 2 |
+| `FC_LoopLocalSimple_mean_stderr_chn` | 12 |
+| `CO_TranslateShape_circle_35_pts_std` | 8 |
+| `PH_Walker_momentum_5_w_momentumzcross` | 2 |
+| `PH_Walker_biasprop_05_01_sw_meanabsdiff` | 2 |
+| `SY_DriftingMean50_min` | 50 |
+| `CO_TranslateShape_circle_35_pts_statav4_m` | 10 (data-dependent above this; see below) |
+| `DN_RemovePoints_absclose_05_ac2rat` | 5 |
+| `ST_LocalExtrema_n100_diffmaxabsmin` | 200 |
+
+Two features can also return `NaN` at longer lengths, depending on the data (_hctsa_ returns `NaN` in the same cases):
+
+- `SC_FluctAnal_2_dfa_50_2_logi_r2_se2` returns `NaN` when the fitted break point leaves fewer than 8 timescales for the second linear fit.
+  In the draws above, this happened for 40–50% of series at N = 34–50, 20–30% at N = 101–200, and 1–9% at N = 701–1000 (most often for random walks).
+- `CO_TranslateShape_circle_35_pts_statav4_m` returns `NaN` when every point has the same number of neighbors inside the circle, which happens for smooth series.
+  It was `NaN` for almost all random walks at every length, for about 13% of AR(1) series at N = 10–200 (under 1% above N = 700), and for white noise only at N ≤ 18.
+
+To compute the full set, use at least 200 samples, because `ST_LocalExtrema_n100_diffmaxabsmin` is always `NaN` below that.
+Even then, expect occasional `NaN` values from the two features above.
+
+## Differences from _hctsa_
+
+On continuous-valued series longer than 15 samples, 14 of the 16 features match the _hctsa_ v1.03 code used in the paper to within floating-point rounding (relative differences below 1e-10).
+Two features cannot match it exactly:
+
+- `CO_AddNoise_1_even_10_ami_at_10` draws its noise with GSL's MT19937 generator and ziggurat Gaussian sampler, whereas _hctsa_ uses MATLAB's `randn`, so the noise and the feature value differ.
+  The generator is seeded with 0 on every call (which GSL's MT19937 maps to its default seed, 4357), so the value is deterministic within this package: the same series always gives the same value.
+  Changing the random seed alone changes this feature by about 10–15% (coefficient of variation at N = 150–1000), and values differed from _hctsa_'s by a similar amount (13–26% for N ≥ 250).
+- `SC_FluctAnal_2_dfa_50_2_logi_r2_se2` computes the standard error of a robust linear fit with GSL's robust regression, which differs from MATLAB's `robustfit` by about 0.03–1.6%.
+  Its `NaN` cases match _hctsa_.
+
+Two features also return a value for some very short series where _hctsa_ v1.03 returns `NaN`.
+`FC_LoopLocalSimple_mean_stderr_chn` returns a value at N = 12–14; _hctsa_ returns `NaN` there only because a different output of the same operation fails to compute.
+`IN_AutoMutualInfoStats_diff_20_gaussian_ami8` returns a value at N = 14–15.
+
 ## Citing _catchaMouse16_
 
 If you use _catchaMouse16_, please cite the open-access paper:
